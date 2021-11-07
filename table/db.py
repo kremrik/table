@@ -1,16 +1,16 @@
 import sqlite3
-from collections import defaultdict
+from collections import defaultdict, namedtuple
 from dataclasses import dataclass
 from datetime import date, datetime
-from functools import cached_property, partial
+from functools import cached_property, partial, lru_cache
 from textwrap import dedent
 from typing import (
     Any, 
     Callable, 
     Dict, 
     List, 
-    Optional, 
-    TypeVar, 
+    Optional,
+    Tuple,
     Union,
 )
 
@@ -48,15 +48,15 @@ class Database:
         self,
         tablename: str,
         fields: dict,
-        dbname: Optional[str] = None,
-        in_memory: bool = True,
+        dbname: Optional[str] = None,  # TODO: should be allowed as the only param
         serializers: Optional[List[Converter]] = None,
     ) -> None:
         self.tablename = tablename
         self.fields = fields
-        self.dbname = ":memory:" if in_memory else dbname
-        self.in_memory = in_memory
+        self.dbname = dbname or ":memory:"
         self.serializers = serializers
+
+        self._in_mem = not dbname
         self._con = None
 
         self._start()
@@ -74,23 +74,61 @@ class Database:
             fields=fields
         )
 
+    def insert_with_schema(
+        self,
+        data: Union[tuple, List[tuple]],
+    ) -> None:
+        stmt = insert_statement_from_schema(
+            table_name=self.tablename,
+            schema=self.fields,
+        )
+
+        if isinstance(data, list):
+            self.executemany(stmt, data)
+        else:
+            self.execute(stmt, data)
+
     def execute(
         self, query: str, bind: Optional[tuple] = None
-    ):
+    ) -> list:
         if not bind:
             bind = ()
         
         cur = self._con.execute(query, bind)
         output = cur.fetchall()
+        desc = cur.description
         cur.close()
+        self._con.commit()
 
-        return output
+        if not desc:
+            return []
+
+        cols = self._get_cols(desc)
+
+        nt = nt_builder(cols)
+        nt_row = lambda x: nt(*x)
+        nt_output = list(map(nt_row, output))
+
+        return nt_output
 
     def executemany(self, query: str, bind:List[tuple]):
+        # TODO: dry up with `execute`
         cur = self._con.executemany(query, bind)
         output = cur.fetchall()
+        desc = cur.description
         cur.close()
-        return output
+        self._con.commit()
+
+        if not desc:
+            return []
+
+        cols = self._get_cols(desc)
+
+        nt = nt_builder(cols)
+        nt_row = lambda x: nt(*x)
+        nt_output = list(map(nt_row, output))
+
+        return nt_output
 
     def _start(self):
         self._connect()
@@ -104,7 +142,7 @@ class Database:
         )
         self._con = con
 
-        if not self.in_memory:
+        if not self._in_mem:
             self._con.execute("PRAGMA mmap_size=268435456")
 
     def _create(self):
@@ -116,6 +154,13 @@ class Database:
         print(ddl)
         self._con.execute(ddl)
         self._con.commit()
+
+    @staticmethod
+    def _get_cols(description):
+        return tuple([
+            d[0]
+            for d in description
+        ])
 
 
 # ---------------------------------------------------------
@@ -178,3 +223,9 @@ def insert_statement_from_schema(
 
 def _placeholder_def(schema: Dict[type, str]) -> str:
     return ", ".join(["?"] * len(schema))
+
+
+@lru_cache(maxsize=None)
+def nt_builder(columns: Tuple[str]):
+    nt = namedtuple("row", columns)
+    return nt
