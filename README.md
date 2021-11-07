@@ -1,4 +1,5 @@
 # table
+A "datatype" that sits between a dictionary and database
 
 ### todo
 - [ ] pickle `dclass` and `serializers` params to store in DB
