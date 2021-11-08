@@ -90,9 +90,29 @@ class Database:
         for s in serializers:
             self._deregister_serializer(name, s)
 
+    def insert(
+        self,
+        table: str,
+        schema: Dict[str, type],
+        data: Union[tuple, List[tuple]],
+    ) -> int:
+        stmt = insert_statement_from_schema(table, schema)
+
+        if isinstance(data, list):
+            self.executemany(stmt, data)
+            return len(data)
+        else:
+            self.execute(stmt, data)
+            return 1
+
+    def query(
+        self, query: str, bind: Optional[tuple] = None
+    ) -> List[tuple]:
+        return self.execute(query, bind)
+
     def execute(
         self, query: str, bind: Optional[tuple] = None
-    ) -> list:
+    ) -> List[tuple]:
         if not bind:
             bind = ()
         
@@ -260,5 +280,5 @@ def _placeholder_def(schema: Dict[type, str]) -> str:
 
 @lru_cache(maxsize=None)
 def nt_builder(columns: Tuple[str]):
-    nt = namedtuple("row", columns)
+    nt = namedtuple("Row", columns)
     return nt

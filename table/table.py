@@ -29,7 +29,7 @@ class Table:
 
         self._name = dclass.__name__.lower()
         self._schema = dclass.__dict__["__annotations__"]
-        self._db
+        self._db = None
 
         self._start()
 
@@ -45,7 +45,13 @@ class Table:
             xformer = dclass_to_row
             count = 1
 
-        self._db.insert_with_schema(xformer(data))
+        records = xformer(data)
+        count = self._db.insert(
+            table=self._name,
+            schema=self._schema,
+            data=records
+        )
+
         return count
 
     def query(
@@ -53,18 +59,13 @@ class Table:
         querystring: str, 
         variables: Optional[tuple] = None
     ) -> List[Optional[Dataclass]]:
-        results = []
-        for row in self._con.execute(querystring):
-            # TODO: should be testable
-            item = self.dclass(*row)
-            results.append(item)
-        return results
+        return self._db.query(querystring, variables)
         
     def _start(self):
-        db = Database(
-            tablename=self._name,
-            fields=self._schema,
-            dbname=self.location,
+        db = Database(self.location)
+        db.create_table(
+            name=self._name,
+            schema=self._schema,
             serializers=self.serializers,
         )
         self._db = db
@@ -75,7 +76,7 @@ def format_insert(
     model: type,
     record: Dataclass,
 ) -> tuple:
-    if not isinstance(d, model):
+    if not isinstance(record, model):
         msg = f"Data must be of type '{model}'"
         raise TypeError(msg)
     
