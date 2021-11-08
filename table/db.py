@@ -2,7 +2,7 @@ import sqlite3
 from collections import defaultdict, namedtuple
 from dataclasses import dataclass
 from datetime import date, datetime
-from functools import cached_property, partial, lru_cache
+from functools import partial, lru_cache
 from textwrap import dedent
 from typing import (
     Any, 
@@ -32,61 +32,61 @@ TYPES = defaultdict(
 )
 
 
+class DatabaseError(Exception):
+    pass
+
+
 @dataclass
 class Converter:
     column: str
+    type: type
     adapter: Callable[[Any], SQLiteType]
     converter: Callable[[bytes], Any]
-
-    def __post_init__(self):
-        # TODO: validate params
-        pass
 
 
 class Database:
     def __init__(
         self,
-        tablename: str,
-        fields: dict,
-        dbname: Optional[str] = None,  # TODO: should be allowed as the only param
-        serializers: Optional[List[Converter]] = None,
+        db: Optional[str] = None,
     ) -> None:
-        self.tablename = tablename
-        self.fields = fields
-        self.dbname = dbname or ":memory:"
-        self.serializers = serializers
+        self.db = db or ":memory:"
 
-        self._in_mem = not dbname
+        self._serializers: Dict[str, Converter] = {}
+        self._in_mem = not db
         self._con = None
 
         self._start()
 
-    @cached_property
-    def schema(self) -> List[dict]:
-        q = f"PRAGMA table_info({self.tablename});"
-        cur = self._con.execute(q)
-        columns = [c[0] for c in cur.description]
-        fields = cur.fetchall()
-        cur.close()
-
-        return schema_definition(
-            columns=columns,
-            fields=fields
-        )
-
-    def insert_with_schema(
+    def create_table(
         self,
-        data: Union[tuple, List[tuple]],
-    ) -> None:
-        stmt = insert_statement_from_schema(
-            table_name=self.tablename,
-            schema=self.fields,
-        )
+        name: str,
+        schema: Dict[str, type],
+        serializers: Optional[List[Converter]] = None,
+    ) -> bool:
+        if not serializers:
+            serializers = []
 
-        if isinstance(data, list):
-            self.executemany(stmt, data)
-        else:
-            self.execute(stmt, data)
+        for s in serializers:
+            self._register_serializer(name, s)
+
+        ddl = ddl_from_schema(
+            table_name=name,
+            schema=schema,
+            mapping=TYPES,
+        )
+        print(ddl)
+        self._con.execute(ddl)
+        self._con.commit()
+
+        return True
+
+    def drop_table(self, name: str) -> bool:
+        stmt = f"DROP TABLE {name}"
+        self.execute(stmt)
+
+        serializers = self._serializers.get(name, [])
+        for s in serializers:
+            self._deregister_serializer(name, s)
 
     def execute(
         self, query: str, bind: Optional[tuple] = None
@@ -130,30 +130,58 @@ class Database:
 
         return nt_output
 
+    @lru_cache(maxsize=None)
+    def schema(self, tablename: str) -> List[dict]:
+        q = f"PRAGMA table_info({tablename});"  # TODO: safe?
+        cur = self._con.execute(q)
+        columns = [c[0] for c in cur.description]
+        fields = cur.fetchall()
+        cur.close()
+
+        return schema_definition(
+            columns=columns,
+            fields=fields
+        )
+
     def _start(self):
+        self._pre_config()
         self._connect()
-        self._create()
+        self._post_config()
+
+    def _pre_config(self):
+        # TODO: load adapters/converters
+        pass
+
+    def _post_config(self):
+        if not self._in_mem:
+            self._con.execute("PRAGMA mmap_size=268435456")
 
     def _connect(self):
-        # TODO: load adapters/converters
         con = sqlite3.connect(
-            self.dbname, 
+            self.db, 
             detect_types=sqlite3.PARSE_DECLTYPES
         )
         self._con = con
 
-        if not self._in_mem:
-            self._con.execute("PRAGMA mmap_size=268435456")
+    def _register_serializer(
+        self,
+        table: str,
+        serializer: Converter,
+    ):
+        adapter = serializer.adapter
+        converter = Converter.converter
+        column = serializer.column
+        obj_type = serializer.type
 
-    def _create(self):
-        ddl = ddl_from_schema(
-            table_name=self.tablename,
-            schema=self.fields,
-            mapping=TYPES,
-        )
-        print(ddl)
-        self._con.execute(ddl)
-        self._con.commit()
+        sqlite3.register_adapter(obj_type, adapter)
+        sqlite3.register_converter(column, converter)
+
+    def _deregister_serializer(
+        self,
+        table: str,
+        serializer: Converter,
+    ):
+        pass
 
     @staticmethod
     def _get_cols(description):
