@@ -63,6 +63,9 @@ class Database:
         schema: Dict[str, type],
         serializers: Optional[List[Converter]] = None,
     ) -> bool:
+        # TODO: if a serializer is present, we need to use
+        # that as the column type definition
+
         if not serializers:
             serializers = []
 
@@ -74,7 +77,6 @@ class Database:
             schema=schema,
             mapping=TYPES,
         )
-        print(ddl)
         self._con.execute(ddl)
         self._con.commit()
 
@@ -130,7 +132,6 @@ class Database:
 
         return nt_output
 
-    @lru_cache(maxsize=None)
     def schema(self, tablename: str) -> List[dict]:
         q = f"PRAGMA table_info({tablename});"  # TODO: safe?
         cur = self._con.execute(q)
@@ -142,26 +143,6 @@ class Database:
             columns=columns,
             fields=fields
         )
-
-    def _start(self):
-        self._pre_config()
-        self._connect()
-        self._post_config()
-
-    def _pre_config(self):
-        # TODO: load adapters/converters
-        pass
-
-    def _post_config(self):
-        if not self._in_mem:
-            self._con.execute("PRAGMA mmap_size=268435456")
-
-    def _connect(self):
-        con = sqlite3.connect(
-            self.db, 
-            detect_types=sqlite3.PARSE_DECLTYPES
-        )
-        self._con = con
 
     def _register_serializer(
         self,
@@ -176,12 +157,36 @@ class Database:
         sqlite3.register_adapter(obj_type, adapter)
         sqlite3.register_converter(column, converter)
 
+        if table not in self._serializers:
+            self._serializers[table] = []
+
+        self._serializers[table].append(serializer)
+
     def _deregister_serializer(
         self,
         table: str,
         serializer: Converter,
     ):
+        self._serializers[table].remove(serializer)
+
+    def _start(self):
+        self._pre_config()
+        self._connect()
+        self._post_config()
+
+    def _pre_config(self):
         pass
+
+    def _post_config(self):
+        if not self._in_mem:
+            self._con.execute("PRAGMA mmap_size=268435456")
+
+    def _connect(self):
+        con = sqlite3.connect(
+            self.db, 
+            detect_types=sqlite3.PARSE_DECLTYPES
+        )
+        self._con = con
 
     @staticmethod
     def _get_cols(description):
