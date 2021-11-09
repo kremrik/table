@@ -18,6 +18,6 @@ setup(
     description=DESCRIPTION,
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
-    packages=find_packages(),
+    packages=find_packages(exclude=["benchmark", "profiler", "tests"]),
     include_package_data=True,
 )
