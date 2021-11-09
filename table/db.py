@@ -95,10 +95,10 @@ class Database:
         self, 
         table: str, 
         columns: Union[str, List[str]]
-    ):
+    ) -> bool:
         stmt = dedent("""
             CREATE INDEX {idx_nm}
-            ON TABLE {tbl_nm} ({cols})
+            ON {tbl_nm} ({cols})
         """)
 
         idx_nm = index_name(table)
@@ -111,8 +111,8 @@ class Database:
             tbl_nm=table,
             cols=cols,
         )
-
         self.execute(stmt)
+        return True
 
     def insert(
         self,
