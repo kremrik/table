@@ -3,6 +3,7 @@ from collections import defaultdict, namedtuple
 from dataclasses import dataclass
 from datetime import date, datetime
 from functools import partial, lru_cache
+from hashlib import sha1
 from textwrap import dedent
 from typing import (
     Any, 
@@ -90,6 +91,29 @@ class Database:
         for s in serializers:
             self._deregister_serializer(name, s)
 
+    def create_index(
+        self, 
+        table: str, 
+        columns: Union[str, List[str]]
+    ):
+        stmt = dedent("""
+            CREATE INDEX {idx_nm}
+            ON TABLE {tbl_nm} ({cols})
+        """)
+
+        idx_nm = index_name(table)
+        if not isinstance(columns, list):
+            columns = [columns]
+        cols = ", ".join(columns)
+
+        stmt = stmt.format(
+            idx_nm=idx_nm,
+            tbl_nm=table,
+            cols=cols,
+        )
+
+        self.execute(stmt)
+
     def insert(
         self,
         table: str,
@@ -104,11 +128,6 @@ class Database:
         else:
             self.execute(stmt, data)
             return 1
-
-    def query(
-        self, query: str, bind: Optional[tuple] = None
-    ) -> List[tuple]:
-        return self.execute(query, bind)
 
     def execute(
         self, query: str, bind: Optional[tuple] = None
@@ -282,3 +301,9 @@ def _placeholder_def(schema: Dict[type, str]) -> str:
 def nt_builder(columns: Tuple[str]):
     nt = namedtuple("Row", columns)
     return nt
+
+
+def index_name(table: str) -> str:
+    short_hash = sha1(table.encode()).hexdigest()[:10]
+    name = f"{table}_{short_hash}"
+    return name

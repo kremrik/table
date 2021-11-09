@@ -59,7 +59,7 @@ class Table:
         querystring: str, 
         variables: Optional[tuple] = None
     ) -> List[Optional[Dataclass]]:
-        return self._db.query(querystring, variables)
+        return self._db.execute(querystring, variables)
         
     def _start(self):
         db = Database(self.location)
