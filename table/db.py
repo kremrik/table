@@ -299,6 +299,8 @@ def _placeholder_def(schema: Dict[type, str]) -> str:
 
 @lru_cache(maxsize=None)
 def nt_builder(columns: Tuple[str]):
+    # TODO: this chokes when doing things like summing
+    # without an alias: select sum(age) from...
     nt = namedtuple("Row", columns)
     return nt
 

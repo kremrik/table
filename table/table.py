@@ -1,6 +1,5 @@
 from table.db import Converter, Database
 
-import sqlite3
 from functools import partial
 from typing import (
     List, 
@@ -39,7 +38,7 @@ class Table:
         dclass_to_row = partial(format_insert, self.dclass)
 
         if isinstance(data, list):
-            xformer = lambda x: map(dclass_to_row, x)
+            xformer = lambda x: list(map(dclass_to_row, x))
             count = len(data)
         else:
             xformer = dclass_to_row
