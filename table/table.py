@@ -69,6 +69,9 @@ class Table:
         )
         self._db = db
 
+        cols = list(self._schema)
+        self._db.create_index(self._name, cols)
+
 
 # ---------------------------------------------------------
 def format_insert(
