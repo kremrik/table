@@ -100,19 +100,7 @@ class Database:
         table: str, 
         columns: Union[str, List[str]]
     ) -> bool:
-        stmt = "CREATE INDEX {idx_nm} ON {tbl_nm} ({cols})"
-
-        idx_nm = index_name(table)
-        if not isinstance(columns, list):
-            columns = [columns]
-        cols = ", ".join(columns)
-
-        stmt = stmt.format(
-            idx_nm=idx_nm,
-            tbl_nm=table,
-            cols=cols,
-        )
-        execute(self._con, stmt)
+        create_index(self._con, table, columns)
         return True
 
     def insert(
@@ -207,6 +195,27 @@ def execute(
     nt_output = list(map(nt_row, output))
 
     return nt_output
+
+
+def create_index(
+    con: Connection, 
+    table: str, 
+    columns: Union[str, List[str]]
+) -> bool:
+    stmt = "CREATE INDEX {idx_nm} ON {tbl_nm} ({cols})"
+
+    idx_nm = index_name(table)
+    if not isinstance(columns, list):
+        columns = [columns]
+    cols = ", ".join(columns)
+
+    stmt = stmt.format(
+        idx_nm=idx_nm,
+        tbl_nm=table,
+        cols=cols,
+    )
+    con.execute(con, stmt)
+    return True
 
 
 def get_schema(
