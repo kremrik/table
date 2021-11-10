@@ -266,7 +266,7 @@ def ddl_from_schema(
     template = "CREATE TABLE IF NOT EXISTS {tname} ({schem})"
 
     col_def = partial(_col_def, mapping)
-    schem = ",\n    ".join(map(col_def, schema.items()))
+    schem = ", ".join(map(col_def, schema.items()))
 
     return template.format(
         tname=table_name,
