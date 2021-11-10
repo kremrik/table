@@ -1,47 +1,24 @@
-import sqlite3
+from table import Table
 
-class Point:
-    def __init__(self, x, y):
-        self.x, self.y = x, y
+import logging
+from dataclasses import dataclass
 
-    def __repr__(self):
-        return "(%f;%f)" % (self.x, self.y)
 
-def adapt_point(point):
-    return ("%f;%f" % (point.x, point.y)).encode('ascii')
+fmt = "%(levelname)s | %(module)-5s | %(message)s"
+logging.basicConfig(format=fmt)
+logging.getLogger().setLevel(logging.DEBUG)
 
-def convert_point(s):
-    x, y = list(map(float, s.split(b";")))
-    return Point(x, y)
 
-# Register the adapter
-sqlite3.register_adapter(Point, adapt_point)
+@dataclass
+class Foo:
+    name: str
+    age: int
 
-# Register the converter
-sqlite3.register_converter("point", convert_point)
+table = Table(Foo)
 
-p = Point(4.0, -3.2)
+record1 = Foo("Joe", 30)
+record2 = Foo("Bill", 40)
+records = [record1, record2]
 
-#########################
-# 1) Using declared types
-con = sqlite3.connect(":memory:", detect_types=sqlite3.PARSE_DECLTYPES)
-cur = con.cursor()
-cur.execute("create table test(p point)")
-
-cur.execute("insert into test(p) values (?)", (p,))
-cur.execute("select p from test")
-print("with declared types:", cur.fetchone()[0])
-cur.close()
-con.close()
-
-#######################
-# 1) Using column names
-con = sqlite3.connect(":memory:", detect_types=sqlite3.PARSE_COLNAMES)
-cur = con.cursor()
-cur.execute("create table test(p)")
-
-cur.execute("insert into test(p) values (?)", (p,))
-cur.execute('select p as "p [point]" from test')
-print("with column names:", cur.fetchone()[0])
-cur.close()
-con.close()
+table.insert(records)
+table.query("select sum(age) as sum_age from foo")

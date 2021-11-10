@@ -1,3 +1,4 @@
+import logging
 import sqlite3
 from collections import defaultdict, namedtuple
 from dataclasses import dataclass
@@ -16,6 +17,7 @@ from typing import (
 )
 
 
+LOGGER = logging.getLogger(__name__)
 SQLiteType = Union[bytes, float, int, str]
 
 
@@ -86,6 +88,7 @@ class Database:
     def drop_table(self, name: str) -> bool:
         stmt = f"DROP TABLE {name}"
         self.execute(stmt)
+        LOGGER.debug(stmt)
 
         serializers = self._serializers.get(name, [])
         for s in serializers:
@@ -96,10 +99,7 @@ class Database:
         table: str, 
         columns: Union[str, List[str]]
     ) -> bool:
-        stmt = dedent("""
-            CREATE INDEX {idx_nm}
-            ON {tbl_nm} ({cols})
-        """)
+        stmt = "CREATE INDEX {idx_nm} ON {tbl_nm} ({cols})"
 
         idx_nm = index_name(table)
         if not isinstance(columns, list):
@@ -112,6 +112,7 @@ class Database:
             cols=cols,
         )
         self.execute(stmt)
+        LOGGER.debug(stmt)
         return True
 
     def insert(
@@ -136,6 +137,8 @@ class Database:
             bind = ()
         
         cur = self._con.execute(query, bind)
+        LOGGER.debug(query)
+
         output = cur.fetchall()
         desc = cur.description
         cur.close()
@@ -155,6 +158,8 @@ class Database:
     def executemany(self, query: str, bind:List[tuple]):
         # TODO: dry up with `execute`
         cur = self._con.executemany(query, bind)
+        LOGGER.debug(query)
+
         output = cur.fetchall()
         desc = cur.description
         cur.close()
@@ -174,6 +179,8 @@ class Database:
     def schema(self, tablename: str) -> List[dict]:
         q = f"PRAGMA table_info({tablename});"  # TODO: safe?
         cur = self._con.execute(q)
+        LOGGER.debug(q)
+
         columns = [c[0] for c in cur.description]
         fields = cur.fetchall()
         cur.close()
@@ -201,12 +208,17 @@ class Database:
 
         self._serializers[table].append(serializer)
 
+        LOGGER.debug(f"Registered serializer [{serializer}]")
+
     def _deregister_serializer(
         self,
         table: str,
         serializer: Converter,
     ):
         self._serializers[table].remove(serializer)
+        LOGGER.debug(
+            f"Deregistered serializer [{serializer}]"
+        )
 
     def _start(self):
         self._pre_config()
@@ -218,7 +230,9 @@ class Database:
 
     def _post_config(self):
         if not self._in_mem:
-            self._con.execute("PRAGMA mmap_size=268435456")
+            stmt = "PRAGMA mmap_size=268435456"
+            self._con.execute(stmt)
+            LOGGER.debug(stmt)
 
     def _connect(self):
         con = sqlite3.connect(
@@ -226,6 +240,8 @@ class Database:
             detect_types=sqlite3.PARSE_DECLTYPES
         )
         self._con = con
+        LOGGER.debug(f"Database created [{self.db}]")
+        LOGGER.debug(f"Connection created [{con}]")
 
     @staticmethod
     def _get_cols(description):
@@ -251,13 +267,8 @@ def ddl_from_schema(
     schema: Dict[str, type],
     mapping: Dict[type, str],
 ) -> str:
-    template = dedent("""\
-        CREATE TABLE IF NOT EXISTS {tname}
-        (
-            {schem}
-        )\
-    """)
-    
+    template = "CREATE TABLE IF NOT EXISTS {tname} ({schem})"
+
     col_def = partial(_col_def, mapping)
     schem = ",\n    ".join(map(col_def, schema.items()))
 
@@ -280,10 +291,7 @@ def insert_statement_from_schema(
     table_name: str,
     schema: Dict[str, type],
 ) -> str:
-    template = dedent("""\
-        INSERT INTO {tname}
-        VALUES ({holdr})
-    """)
+    template = "INSERT INTO {tname} VALUES ({holdr})"
 
     holdr = _placeholder_def(schema)
 

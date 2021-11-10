@@ -1,5 +1,6 @@
 from table.db import Converter, Database
 
+import logging
 from functools import partial
 from typing import (
     List, 
@@ -12,6 +13,7 @@ from typing import (
 __all__ = ["Converter", "Table"]
 
 
+LOGGER = logging.getLogger(__name__)
 Dataclass = TypeVar("Dataclass")
 
 
@@ -20,11 +22,13 @@ class Table:
         self, 
         dclass: Dataclass,
         location: Optional[str] = None,
-        serializers: Optional[List[Converter]] = None
+        serializers: Optional[List[Converter]] = None,
+        index_columns: bool = False
     ) -> None:
         self.dclass = dclass
         self.location = location
         self.serializers = serializers
+        self.index_columns = index_columns
 
         self._name = dclass.__name__.lower()
         self._schema = dclass.__dict__["__annotations__"]
@@ -69,8 +73,13 @@ class Table:
         )
         self._db = db
 
-        cols = list(self._schema)
-        self._db.create_index(self._name, cols)
+        if self.index_columns:
+            cols = list(self._schema)
+            self._db.create_index(self._name, cols)
+
+        LOGGER.debug(
+            f"Table created with model [{self.dclass}]"
+        )
 
 
 # ---------------------------------------------------------
