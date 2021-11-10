@@ -76,14 +76,7 @@ class Database:
         for s in serializers:
             self._register_serializer(name, s)
 
-        ddl = ddl_from_schema(
-            table_name=name,
-            schema=schema,
-            mapping=TYPES,
-        )
-        execute(self._con, ddl)
-        self._con.commit()
-
+        create_table(self._con, name, schema)
         return True
 
     def drop_table(self, name: str) -> bool:
@@ -197,18 +190,37 @@ def execute(
     return nt_output
 
 
-def drop_table(con: Connection, name: str) -> bool:
+def create_table(
+    con: Connection,
+    name: str,
+    schema: Dict[str, type],
+    mapping: Optional[dict] = None
+) -> None:
+    if not mapping:
+        mapping = TYPES
+
+    ddl = ddl_from_schema(
+        table_name=name,
+        schema=schema,
+        mapping=mapping,
+    )
+
+    execute(con, ddl)
+    con.commit()
+    LOGGER.debug(ddl)
+
+
+def drop_table(con: Connection, name: str) -> None:
     stmt = f"DROP TABLE {name}"
     execute(con, stmt)
     LOGGER.debug(stmt)
-    return True
 
 
 def create_index(
     con: Connection, 
     table: str, 
     columns: Union[str, List[str]]
-) -> bool:
+) -> None:
     stmt = "CREATE INDEX {idx_nm} ON {tbl_nm} ({cols})"
 
     idx_nm = index_name(table)
@@ -222,7 +234,7 @@ def create_index(
         cols=cols,
     )
     con.execute(con, stmt)
-    return True
+    LOGGER.debug(stmt)
 
 
 def get_schema(
@@ -230,12 +242,12 @@ def get_schema(
 ) -> List[dict]:
     q = f"PRAGMA table_info({tablename});"  # TODO: safe?
     cur = con.execute(q)
-    LOGGER.debug(q)
 
     columns = [c[0] for c in cur.description]
     fields = cur.fetchall()
     cur.close()
 
+    LOGGER.debug(q)
     return schema_definition(
         columns=columns,
         fields=fields
