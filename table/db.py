@@ -1,5 +1,4 @@
 import logging
-import sqlite3
 from collections import defaultdict, namedtuple
 from dataclasses import dataclass
 from datetime import date, datetime
@@ -15,6 +14,8 @@ from typing import (
     Tuple,
     Union,
 )
+import sqlite3
+from sqlite3 import Connection
 
 
 LOGGER = logging.getLogger(__name__)
@@ -229,13 +230,11 @@ class Database:
 
     def _post_config(self):
         if not self._in_mem:
-            stmt = "PRAGMA mmap_size=268435456"
-            self._con.execute(stmt)
-            LOGGER.debug(stmt)
+            config_mmap(self._con)
 
 
 # ---------------------------------------------------------
-def create_db(db) -> sqlite3.Connection:
+def create_db(db) -> Connection:
     con = sqlite3.connect(
         db, 
         detect_types=sqlite3.PARSE_DECLTYPES
@@ -245,6 +244,15 @@ def create_db(db) -> sqlite3.Connection:
     LOGGER.debug(f"Connection created [{con}]")
     
     return con
+
+
+def config_mmap(
+    con: Connection,
+    page_size: int = 268435456
+) -> None:
+    stmt = f"PRAGMA mmap_size={page_size}"
+    con.execute(stmt)
+    LOGGER.debug(stmt)
 
 
 # ---------------------------------------------------------
