@@ -22,12 +22,12 @@ class Table:
         self, 
         dclass: Dataclass,
         location: Optional[str] = None,
-        serializers: Optional[List[Converter]] = None,
+        # serializers: Optional[List[Converter]] = None,
         index_columns: bool = False
     ) -> None:
         self.dclass = dclass
         self.location = location
-        self.serializers = serializers
+        # self.serializers = serializers
         self.index_columns = index_columns
 
         self._name = dclass.__name__.lower()
@@ -69,7 +69,7 @@ class Table:
         db.create_table(
             name=self._name,
             schema=self._schema,
-            serializers=self.serializers,
+            # serializers=self.serializers,
         )
         self._db = db
 

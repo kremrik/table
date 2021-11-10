@@ -1,9 +1,11 @@
 # table
 A "datatype" that sits between a dictionary and database
 
+
 ### Overview
 `table` is a simple module for working with tabular data.
 It's entirely driven by a single Python standard library `dataclasses.dataclass` object, but provides the user with a powerful SQL interface and fast, indexed, in-memory (or memory-mapped on disk) performance out of the box.
+
 
 ### Examples
 ```python
@@ -41,6 +43,7 @@ person.query("select avg(age) as avg_age from person")
 [Row(avg_age=41.666666666666664)]
 ```
 
+
 ### Installation
 ```
 git clone git@github.com:kremrik/table.git
@@ -48,7 +51,19 @@ cd table
 pip install .
 ```
 
+
 ### Upgrading (development)
 ```
 pip install . --upgrade
 ```
+
+
+### TODO
+- [ ] error handling and testing for erroneous inputs
+- [ ] check if table for given DB already exists
+- [ ] if db already exists, check that `dclass` matches `schema`
+- [ ] write serializers to db in "private" table to be re-initialized on launch
+- [ ] create history/audit table
+- [ ] ? create process-local "undo" functionality ?
+- [ ] create profiler base
+- [ ] create benchmark base (with local DB to track history)
