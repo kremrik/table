@@ -81,14 +81,14 @@ class Database:
             schema=schema,
             mapping=TYPES,
         )
-        self._con.execute(ddl)
+        execute(self._con, ddl)
         self._con.commit()
 
         return True
 
     def drop_table(self, name: str) -> bool:
         stmt = f"DROP TABLE {name}"
-        self.execute(stmt)
+        execute(self._con, stmt)
         LOGGER.debug(stmt)
 
         serializers = self._serializers.get(name, [])
@@ -112,7 +112,7 @@ class Database:
             tbl_nm=table,
             cols=cols,
         )
-        self.execute(stmt)
+        execute(self._con, stmt)
         return True
 
     def insert(
@@ -120,61 +120,15 @@ class Database:
         table: str,
         schema: Dict[str, type],
         data: Union[tuple, List[tuple]],
-    ) -> int:
+    ) -> bool:
         stmt = insert_statement_from_schema(table, schema)
-
-        if isinstance(data, list):
-            self.executemany(stmt, data)
-            return len(data)
-        else:
-            self.execute(stmt, data)
-            return 1
+        execute(self._con, stmt, data)
+        return True
 
     def execute(
         self, query: str, bind: Optional[tuple] = None
-    ) -> List[tuple]:
-        if not bind:
-            bind = ()
-        
-        cur = self._con.execute(query, bind)
-        LOGGER.debug(query)
-
-        output = cur.fetchall()
-        desc = cur.description
-        cur.close()
-        self._con.commit()
-
-        if not desc:
-            return []
-
-        cols = get_cols(desc)
-
-        nt = nt_builder(cols)
-        nt_row = lambda x: nt(*x)
-        nt_output = list(map(nt_row, output))
-
-        return nt_output
-
-    def executemany(self, query: str, bind:List[tuple]):
-        # TODO: dry up with `execute`
-        cur = self._con.executemany(query, bind)
-        LOGGER.debug(query)
-
-        output = cur.fetchall()
-        desc = cur.description
-        cur.close()
-        self._con.commit()
-
-        if not desc:
-            return []
-
-        cols = get_cols(desc)
-
-        nt = nt_builder(cols)
-        nt_row = lambda x: nt(*x)
-        nt_output = list(map(nt_row, output))
-
-        return nt_output
+    ) -> List[Optional[tuple]]:
+        return execute(self._con, query, bind)
 
     def schema(self, tablename: str) -> List[dict]:
         return get_schema(self._con, tablename)
@@ -223,6 +177,38 @@ class Database:
 
 
 # ---------------------------------------------------------
+def execute(
+    con: Connection,
+    query: str, 
+    bind: Optional[Union[tuple, List[tuple]]] = None
+) -> List[tuple]:
+    if not bind:
+        bind = ()
+    
+    executor = con.execute
+    if isinstance(bind, list):
+        executor = con.executemany
+    
+    cur = executor(query, bind)
+    LOGGER.debug(query)
+
+    output = cur.fetchall()
+    desc = cur.description
+    cur.close()
+    con.commit()
+
+    if not desc:
+        return []
+
+    cols = get_cols(desc)
+
+    nt = nt_builder(cols)
+    nt_row = lambda x: nt(*x)
+    nt_output = list(map(nt_row, output))
+
+    return nt_output
+
+
 def get_schema(
     con: Connection, tablename: str
 ) -> List[dict]:

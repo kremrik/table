@@ -29,7 +29,7 @@ class TestDatabase(unittest.TestCase):
 
         stmt = "INSERT INTO test (foo, bar) VALUES (?, ?)"
         records = [("hi", 1), ("hello", 2)]
-        db.executemany(stmt, records)
+        db.execute(stmt, records)
 
         expected = [("hi", 1), ("hello", 2)]
         actual = db.execute("SELECT * FROM test")
