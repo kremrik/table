@@ -221,7 +221,7 @@ class Database:
 
     def _start(self):
         self._pre_config()
-        self._connect()
+        self._con = create_db(self.db)
         self._post_config()
 
     def _pre_config(self):
@@ -233,18 +233,18 @@ class Database:
             self._con.execute(stmt)
             LOGGER.debug(stmt)
 
-    def _connect(self):
-        con = sqlite3.connect(
-            self.db, 
-            detect_types=sqlite3.PARSE_DECLTYPES
-        )
-        self._con = con
-        LOGGER.debug(f"Database created [{self.db}]")
-        LOGGER.debug(f"Connection created [{con}]")
-
 
 # ---------------------------------------------------------
+def create_db(db) -> sqlite3.Connection:
+    con = sqlite3.connect(
+        db, 
+        detect_types=sqlite3.PARSE_DECLTYPES
+    )
 
+    LOGGER.debug(f"Database created [{db}]")
+    LOGGER.debug(f"Connection created [{con}]")
+    
+    return con
 
 
 # ---------------------------------------------------------
