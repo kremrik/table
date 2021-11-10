@@ -226,10 +226,9 @@ def get_schema(
     )
 
 
-def create_db(db) -> Connection:
+def create_db(db: str) -> Connection:
     con = sqlite3.connect(
-        db, 
-        detect_types=sqlite3.PARSE_DECLTYPES
+        db, detect_types=sqlite3.PARSE_DECLTYPES
     )
 
     LOGGER.debug(f"Database created [{db}]")
