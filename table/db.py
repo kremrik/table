@@ -205,14 +205,14 @@ def create_table(
         mapping=mapping,
     )
 
-    execute(con, ddl)
+    con.execute(ddl)
     con.commit()
     LOGGER.debug(ddl)
 
 
 def drop_table(con: Connection, name: str) -> None:
     stmt = f"DROP TABLE {name}"
-    execute(con, stmt)
+    con.execute(stmt)
     LOGGER.debug(stmt)
 
 
