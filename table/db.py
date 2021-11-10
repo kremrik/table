@@ -112,7 +112,6 @@ class Database:
             cols=cols,
         )
         self.execute(stmt)
-        LOGGER.debug(stmt)
         return True
 
     def insert(

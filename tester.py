@@ -14,7 +14,7 @@ class Foo:
     name: str
     age: int
 
-table = Table(Foo)
+table = Table(Foo, index_columns=True)
 
 record1 = Foo("Joe", 30)
 record2 = Foo("Bill", 40)
