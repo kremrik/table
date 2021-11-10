@@ -87,13 +87,13 @@ class Database:
         return True
 
     def drop_table(self, name: str) -> bool:
-        stmt = f"DROP TABLE {name}"
-        execute(self._con, stmt)
-        LOGGER.debug(stmt)
+        drop_table(self._con, name)
 
         serializers = self._serializers.get(name, [])
         for s in serializers:
             self._deregister_serializer(name, s)
+
+        return True
 
     def create_index(
         self, 
@@ -195,6 +195,13 @@ def execute(
     nt_output = list(map(nt_row, output))
 
     return nt_output
+
+
+def drop_table(con: Connection, name: str) -> bool:
+    stmt = f"DROP TABLE {name}"
+    execute(con, stmt)
+    LOGGER.debug(stmt)
+    return True
 
 
 def create_index(

@@ -1,6 +1,7 @@
 from table.db import Converter, Database, DatabaseError
 
 import unittest
+from sqlite3 import OperationalError
 
 
 class TestDatabase(unittest.TestCase):
@@ -64,6 +65,16 @@ class TestDatabase(unittest.TestCase):
         actual = db.schema(tablename)
         self.assertEqual(actual, expected)
 
+    def test_drop_table(self):
+        db = Database()
+
+        tablename = "test"
+        schema = {"foo": str, "bar": int}
+        db.create_table(tablename, schema)
+        db.drop_table("test")
+
+        with self.assertRaises(OperationalError):
+            db.execute("select * from test")
 
     @unittest.skip("v2 feature")
     def test_custom_type(self):
