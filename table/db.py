@@ -242,12 +242,12 @@ def get_schema(
 ) -> List[dict]:
     q = f"PRAGMA table_info({tablename});"  # TODO: safe?
     cur = con.execute(q)
+    LOGGER.debug(q)
 
     columns = [c[0] for c in cur.description]
     fields = cur.fetchall()
     cur.close()
 
-    LOGGER.debug(q)
     return schema_definition(
         columns=columns,
         fields=fields
