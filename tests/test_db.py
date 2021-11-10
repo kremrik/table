@@ -21,20 +21,49 @@ class TestDatabase(unittest.TestCase):
         self.assertEqual(actual, expected)
 
     def test_insert_multiple_records(self):
-            db = Database()
+        db = Database()
 
-            tablename = "test"
-            schema = {"foo": str, "bar": int}
-            db.create_table(tablename, schema)
+        tablename = "test"
+        schema = {"foo": str, "bar": int}
+        db.create_table(tablename, schema)
 
-            stmt = "INSERT INTO test (foo, bar) VALUES (?, ?)"
-            records = [("hi", 1), ("hello", 2)]
-            db.executemany(stmt, records)
+        stmt = "INSERT INTO test (foo, bar) VALUES (?, ?)"
+        records = [("hi", 1), ("hello", 2)]
+        db.executemany(stmt, records)
 
-            expected = [("hi", 1), ("hello", 2)]
-            actual = db.execute("SELECT * FROM test")
+        expected = [("hi", 1), ("hello", 2)]
+        actual = db.execute("SELECT * FROM test")
 
-            self.assertEqual(actual, expected)
+        self.assertEqual(actual, expected)
+
+    def test_schema(self):
+        db = Database()
+
+        tablename = "test"
+        schema = {"foo": str, "bar": int}
+        db.create_table(tablename, schema)
+
+        expected = [
+            {
+                'cid': 0,
+                'name': 'foo',
+                'type': 'TEXT',
+                'notnull': 0,
+                'dflt_value': None,
+                'pk': 0
+            },
+            {
+                'cid': 1,
+                'name': 'bar',
+                'type': 'INTEGER',
+                'notnull': 0,
+                'dflt_value': None,
+                'pk': 0
+            }
+        ]
+        actual = db.schema(tablename)
+        self.assertEqual(actual, expected)
+
 
     @unittest.skip("v2 feature")
     def test_custom_type(self):

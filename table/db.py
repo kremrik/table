@@ -177,18 +177,7 @@ class Database:
         return nt_output
 
     def schema(self, tablename: str) -> List[dict]:
-        q = f"PRAGMA table_info({tablename});"  # TODO: safe?
-        cur = self._con.execute(q)
-        LOGGER.debug(q)
-
-        columns = [c[0] for c in cur.description]
-        fields = cur.fetchall()
-        cur.close()
-
-        return schema_definition(
-            columns=columns,
-            fields=fields
-        )
+        return get_schema(self._con, tablename)
 
     def _register_serializer(
         self,
@@ -234,6 +223,23 @@ class Database:
 
 
 # ---------------------------------------------------------
+def get_schema(
+    con: Connection, tablename: str
+) -> List[dict]:
+    q = f"PRAGMA table_info({tablename});"  # TODO: safe?
+    cur = con.execute(q)
+    LOGGER.debug(q)
+
+    columns = [c[0] for c in cur.description]
+    fields = cur.fetchall()
+    cur.close()
+
+    return schema_definition(
+        columns=columns,
+        fields=fields
+    )
+
+
 def create_db(db) -> Connection:
     con = sqlite3.connect(
         db, 
