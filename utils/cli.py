@@ -1,11 +1,7 @@
+from utils.formats import Colors, Styles
+
 from dataclasses import dataclass
-from textwrap import dedent
-from typing import Callable, List, Optional
-
-
-BOLD = "\033[1m"
-RED = "\033[31m"
-NORM = "\033[0m"
+from typing import Callable, List
 
 
 HELP_ARGS = ["-h", "--help", "help"]
@@ -33,11 +29,10 @@ def cli(cli_args: List[str], opts: List[Arg]) -> str:
     arg_names = [a.arg for a in opts]
     bad_args = list(set(cli_args) - set(arg_names))
     if bad_args:
-        msg = format_error(
-            f"Incorrect arguments: {bad_args}"
+        msg = Colors.red(
+            f"Incorrect argument(s): {bad_args}"
         )
         print(msg)
-        print(hlp)
         exit(1)
 
     arg = cli_args[0]
@@ -51,20 +46,14 @@ def cli(cli_args: List[str], opts: List[Arg]) -> str:
 
 
 def generate_help(args: List[Arg]) -> str:
+    header = Styles.bold("COMMANDS")
     hlp = "\n".join(map(_format_argument, args))
-    return hlp
-
-
-def _format_argument(arg: Arg) -> str:
-    opt = format_option(arg.arg)
-    hlp = arg.help
-    output = f"{opt}\n    {hlp}"
+    output = header + "\n" + hlp
     return output
 
 
-def format_option(opt: str) -> str:
-    return f"{BOLD}{opt}{NORM}"
-
-
-def format_error(msg: str) -> str:
-    return f"{RED}{msg}{NORM}"
+def _format_argument(arg: Arg) -> str:
+    opt = Styles.bold(arg.arg)
+    hlp = arg.help
+    output = f"    {opt}\n        {hlp}"
+    return output
