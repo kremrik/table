@@ -146,7 +146,7 @@ class Database:
         if not desc:
             return []
 
-        cols = self._get_cols(desc)
+        cols = get_cols(desc)
 
         nt = nt_builder(cols)
         nt_row = lambda x: nt(*x)
@@ -167,7 +167,7 @@ class Database:
         if not desc:
             return []
 
-        cols = self._get_cols(desc)
+        cols = get_cols(desc)
 
         nt = nt_builder(cols)
         nt_row = lambda x: nt(*x)
@@ -242,12 +242,9 @@ class Database:
         LOGGER.debug(f"Database created [{self.db}]")
         LOGGER.debug(f"Connection created [{con}]")
 
-    @staticmethod
-    def _get_cols(description):
-        return tuple([
-            d[0]
-            for d in description
-        ])
+
+# ---------------------------------------------------------
+
 
 
 # ---------------------------------------------------------
@@ -316,3 +313,10 @@ def index_name(table: str) -> str:
     short_hash = sha1(table.encode()).hexdigest()[:10]
     name = f"{table}_{short_hash}"
     return name
+
+
+def get_cols(description):
+    return tuple([
+        d[0]
+        for d in description
+    ])
