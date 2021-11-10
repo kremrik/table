@@ -233,7 +233,7 @@ def create_index(
         tbl_nm=table,
         cols=cols,
     )
-    con.execute(con, stmt)
+    con.execute(stmt)
     LOGGER.debug(stmt)
 
 
