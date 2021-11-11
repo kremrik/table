@@ -1,4 +1,4 @@
-from table.db import Converter, Database, DatabaseError
+from table.db import Converter, Database, DatabaseError, DatabaseWarning
 
 import unittest
 from sqlite3 import OperationalError
@@ -75,6 +75,18 @@ class TestDatabase(unittest.TestCase):
 
         with self.assertRaises(OperationalError):
             db.execute("select * from test")
+
+    def test_table_exists_warning(self):
+        db = Database()
+        tablename = "test"
+        schema = {"foo": str, "bar": int}
+        db.create_table(tablename, schema)
+
+        with self.assertRaises(DatabaseWarning):
+            tablename = "test"
+            schema = {"foo": str, "bar": int}
+            db.create_table(tablename, schema)
+    
 
     @unittest.skip("v2 feature")
     def test_custom_type(self):

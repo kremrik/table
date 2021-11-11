@@ -17,6 +17,10 @@ LOGGER = logging.getLogger(__name__)
 Dataclass = TypeVar("Dataclass")
 
 
+class TableError(Exception):
+    pass
+
+
 class Table:
     def __init__(
         self, 

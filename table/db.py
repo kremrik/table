@@ -4,7 +4,6 @@ from dataclasses import dataclass
 from datetime import date, datetime
 from functools import partial, lru_cache
 from hashlib import sha1
-from textwrap import dedent
 from typing import (
     Any, 
     Callable, 
@@ -40,6 +39,10 @@ class DatabaseError(Exception):
     pass
 
 
+class DatabaseWarning(Warning):
+    pass
+
+
 @dataclass
 class Converter:
     column: str
@@ -67,8 +70,14 @@ class Database:
         schema: Dict[str, type],
         serializers: Optional[List[Converter]] = None,
     ) -> bool:
+        if table_exists(self._con, name):
+            msg = f"Table {name} already exists"
+            raise DatabaseWarning(msg)
+
         # TODO: if a serializer is present, we need to use
-        # that as the column type definition
+        #  that as the column type definition
+        # TODO: if table exists, need to load and register
+        #  serializers from DB
 
         if not serializers:
             serializers = []
@@ -188,6 +197,18 @@ def execute(
     nt_output = list(map(nt_row, output))
 
     return nt_output
+
+
+def table_exists(con: Connection, name: str) -> bool:
+    stmt = f"SELECT name FROM sqlite_master WHERE type='table' AND name='{name}'"
+    cur = con.execute(stmt)
+    res = cur.fetchone()
+
+    LOGGER.debug(stmt)
+
+    if res:
+        return True
+    return False
 
 
 def create_table(
