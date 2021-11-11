@@ -2,10 +2,11 @@ from table import Table
 from utils.cli import Arg, cli
 
 from dataclasses import dataclass
-from os.path import abspath, dirname, join
 from random import randint, seed
 from string import ascii_lowercase
 from sys import argv
+from os import remove
+from os.path import abspath, dirname, join
 
 
 seed(13)
@@ -40,6 +41,10 @@ def make_db():
     table.insert(records)
 
 
+def destroy_db():
+    remove(DB_NAME)
+
+
 def _alpha_rand() -> str:
     rand = randint(0, 25)
     return ascii_lowercase[rand]
@@ -53,7 +58,7 @@ opts = [
     ),
     Arg(
         "teardown", 
-        lambda: print("TEARDOWN"), 
+        destroy_db, 
         "Tear down db"
     )
 ]
