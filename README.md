@@ -44,7 +44,11 @@ person.query("select avg(age) as avg_age from person")
 ```
 
 
-### Installation
+### A Friendly Warning
+If you are working with a `Table`, be aware that I've done nothing to stop you from shooting yourself in the foot. If you want to do something like `table.query("drop table _YOURTABLE_")`, nothing is going to stop you (for better or worse). I made the decision a while ago (at least for developer-facing tools) to never sacrifice simplicity or functionality in order to "save someone from themselves". We're all adults here, enjoy the freedom!
+
+
+### Installation (development)
 ```
 git clone git@github.com:kremrik/table.git
 cd table
