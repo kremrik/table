@@ -23,7 +23,7 @@ class Foo:
 
 
 def make_db():
-    rows = 1_000
+    rows = 1_000_000
     table = Table(Foo, DB_NAME)
 
     rand_l = randint(1, 10)

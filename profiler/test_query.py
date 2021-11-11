@@ -11,4 +11,5 @@ DB_NAME = join(HERE, "profiler.db")
 table = Table(Foo, DB_NAME)
 
 
-table.query("select avg(number) as mean from foo")
+res = table.query("select avg(number) as mean from foo")
+print(f"RESPONSE: {res}")
