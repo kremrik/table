@@ -2,7 +2,7 @@ from table import Table
 from profiler.dataclass_fixture import Foo
 
 
-rows = 1_000
+rows = 100_000
 table = Table(Foo)
 
 records = []
