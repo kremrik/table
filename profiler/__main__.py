@@ -50,19 +50,17 @@ def _alpha_rand() -> str:
     return ascii_lowercase[rand]
 
 
-opts = [
-    Arg(
-        "setup", 
-        make_db, 
-        "Set up DB"
-    ),
-    Arg(
-        "teardown", 
-        destroy_db, 
-        "Tear down db"
-    )
-]
-
-
 if __name__ == "__main__":
+    opts = [
+        Arg(
+            "setup", 
+            make_db, 
+            "Set up DB"
+        ),
+        Arg(
+            "teardown", 
+            destroy_db, 
+            "Tear down db"
+        )
+    ]
     cli(argv[1:], opts)
