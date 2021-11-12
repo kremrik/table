@@ -63,11 +63,15 @@ pip install . --upgrade
 
 
 ### TODO
+
+##### VERSION 1
 - [ ] error handling and testing for erroneous inputs
-- [ ] check if table for given DB already exists
-- [ ] if db already exists, check that `dclass` matches `schema`
+- [x] check if table for given DB already exists
+- [x] if db already exists, check that `dclass` matches `schema`
+- [x] create profiler base
+- [ ] create benchmark base (with local DB to track history)
+
+##### VERSION 2
 - [ ] write serializers to db in "private" table to be re-initialized on launch
 - [ ] create history/audit table
 - [ ] ? create process-local "undo" functionality ?
-- [ ] create profiler base
-- [ ] create benchmark base (with local DB to track history)
