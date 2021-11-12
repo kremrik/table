@@ -1,4 +1,4 @@
-from table.table import Table
+from table.table import Table, TableError
 
 import unittest
 from dataclasses import dataclass
