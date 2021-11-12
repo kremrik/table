@@ -71,7 +71,14 @@ class Database:
         serializers: Optional[List[Converter]] = None,
     ) -> bool:
         if table_exists(self._con, name):
-            msg = f"Table {name} already exists"
+            _schem = self.schema(name)
+
+            if not schemas_match(schema, _schem):
+                msg = f"Table '{name}' exists, but schemas do not match"
+                LOGGER.debug(f"Existing schema [{_schem}]")
+                raise DatabaseError(msg)
+
+            msg = f"Table '{name}' exists, proceeding"
             raise DatabaseWarning(msg)
 
         # TODO: if a serializer is present, we need to use
@@ -120,6 +127,7 @@ class Database:
     ) -> List[Optional[tuple]]:
         return execute(self._con, query, bind)
 
+    @lru_cache(maxsize=None)
     def schema(self, tablename: str) -> List[dict]:
         return get_schema(self._con, tablename)
 
@@ -386,3 +394,19 @@ def get_cols(description):
         d[0]
         for d in description
     ])
+
+
+def schemas_match(given: dict, have: List[dict]) -> bool:
+    # TODO: flesh out with types eventually
+
+    given_cols = set(given)
+
+    have_cols = set([
+        col["name"]
+        for col in have
+    ])
+
+    if given_cols - have_cols or have_cols - given_cols:
+        return False
+
+    return True

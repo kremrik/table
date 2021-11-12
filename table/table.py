@@ -35,7 +35,7 @@ class Table:
         self.index_columns = index_columns
 
         self._name = dclass.__name__.lower()
-        self._schema = dclass.__dict__["__annotations__"]
+        self._schema = dclass.__dict__["__annotations__"]  # TODO: lower names
         self._db = None
 
         self._start()

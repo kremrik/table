@@ -86,6 +86,17 @@ class TestDatabase(unittest.TestCase):
             tablename = "test"
             schema = {"foo": str, "bar": int}
             db.create_table(tablename, schema)
+
+    def test_table_exists_and_given_wrong_schema(self):
+        db = Database()
+        tablename = "test"
+        schema = {"foo": str, "bar": int}
+        db.create_table(tablename, schema)
+
+        with self.assertRaises(DatabaseError):
+            tablename = "test"
+            schema = {"foo": str, "baz": str}
+            db.create_table(tablename, schema)
     
 
     @unittest.skip("v2 feature")
