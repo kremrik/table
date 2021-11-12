@@ -2,6 +2,7 @@ from table.table import Table
 
 import unittest
 from dataclasses import dataclass
+from datetime import date, datetime
 
 
 class TestTable(unittest.TestCase):
@@ -69,4 +70,22 @@ class TestTable(unittest.TestCase):
 
         expected = [(70,)]
         actual = table.query("select sum(age) as sum_age from foo")
+        self.assertEqual(actual, expected)
+
+    def test_date_datetime(self):
+        @dataclass
+        class Foo:
+            dt: date
+            dt_tm: datetime
+        
+        table = Table(Foo)
+
+        dt = date.today()
+        dt_tm = datetime.now()
+
+        record = Foo(dt, dt_tm)
+        table.insert(record)
+
+        expected = [(dt, dt_tm)]
+        actual = table.query("select * from foo")
         self.assertEqual(actual, expected)
