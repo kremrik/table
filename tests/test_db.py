@@ -73,7 +73,7 @@ class TestDatabase(unittest.TestCase):
         db.create_table(tablename, schema)
         db.drop_table("test")
 
-        with self.assertRaises(OperationalError):
+        with self.assertRaises(DatabaseError):
             db.execute("select * from test")
 
     def test_table_exists_warning(self):

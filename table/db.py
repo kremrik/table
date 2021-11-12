@@ -2,7 +2,7 @@ import logging
 from collections import defaultdict, namedtuple
 from dataclasses import dataclass
 from datetime import date, datetime
-from functools import partial, lru_cache
+from functools import partial, lru_cache, wraps
 from hashlib import sha1
 from typing import (
     Any, 
@@ -14,7 +14,7 @@ from typing import (
     Union,
 )
 import sqlite3
-from sqlite3 import Connection
+from sqlite3 import Connection, Error
 
 
 LOGGER = logging.getLogger(__name__)
@@ -167,6 +167,17 @@ class Database:
 
 
 # ---------------------------------------------------------
+def fwdexception(fnc: Callable):
+    @wraps(fnc)
+    def wrapper(*args, **kwargs):
+        try:
+            return fnc(*args, **kwargs)
+        except Error as e:
+            raise DatabaseError from e
+    return wrapper
+
+
+@fwdexception
 def execute(
     con: Connection,
     query: str, 
@@ -199,6 +210,7 @@ def execute(
     return nt_output
 
 
+@fwdexception
 def table_exists(con: Connection, name: str) -> bool:
     stmt = f"SELECT name FROM sqlite_master WHERE type='table' AND name='{name}'"
     cur = con.execute(stmt)
@@ -211,6 +223,7 @@ def table_exists(con: Connection, name: str) -> bool:
     return False
 
 
+@fwdexception
 def create_table(
     con: Connection,
     name: str,
@@ -231,12 +244,14 @@ def create_table(
     LOGGER.debug(ddl)
 
 
+@fwdexception
 def drop_table(con: Connection, name: str) -> None:
     stmt = f"DROP TABLE {name}"
     con.execute(stmt)
     LOGGER.debug(stmt)
 
 
+@fwdexception
 def create_index(
     con: Connection, 
     table: str, 
@@ -258,6 +273,7 @@ def create_index(
     LOGGER.debug(stmt)
 
 
+@fwdexception
 def get_schema(
     con: Connection, tablename: str
 ) -> List[dict]:
@@ -275,6 +291,7 @@ def get_schema(
     )
 
 
+@fwdexception
 def create_db(db: str) -> Connection:
     con = sqlite3.connect(
         db, detect_types=sqlite3.PARSE_DECLTYPES
@@ -286,6 +303,7 @@ def create_db(db: str) -> Connection:
     return con
 
 
+@fwdexception
 def config_mmap(
     con: Connection,
     page_size: int = 268435456

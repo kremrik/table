@@ -21,4 +21,5 @@ record2 = Foo("Bill", 40)
 records = [record1, record2]
 
 table.insert(records)
-table.query("select sum(age) as sum_age from foo")
+res = table.query("select sum(age) as sum_age from foo")
+print(res)
