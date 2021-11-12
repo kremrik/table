@@ -46,11 +46,15 @@ class Table:
     @property
     def schema(self) -> dict:
         db_schema = self._db.schema(self._name)
-        s = {
+        columns = {
             col["name"]: col["type"]
             for col in db_schema
         }
-        return s
+        full = {
+            "table": self._name,
+            "columns": columns
+        }
+        return full
 
     def insert(
         self, data: Union[Dataclass, List[Dataclass]]

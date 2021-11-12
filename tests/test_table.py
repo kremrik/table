@@ -104,8 +104,11 @@ class TestTable(unittest.TestCase):
         table.insert(records)
 
         expected = {
-            "name": "TEXT",
-            "age": "INTEGER",
+            "table": "foo",
+            "columns": {
+                "name": "TEXT",
+                "age": "INTEGER",
+            }
         }
         actual = table.schema
         self.assertEqual(actual, expected)
