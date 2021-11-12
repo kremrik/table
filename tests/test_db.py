@@ -1,4 +1,9 @@
-from table.db import Converter, Database, DatabaseError, DatabaseWarning
+from table.db import (
+    Converter,
+    Database,
+    DatabaseError,
+    DatabaseWarning,
+)
 
 import unittest
 
@@ -45,21 +50,21 @@ class TestDatabase(unittest.TestCase):
 
         expected = [
             {
-                'cid': 0,
-                'name': 'foo',
-                'type': 'TEXT',
-                'notnull': 0,
-                'dflt_value': None,
-                'pk': 0
+                "cid": 0,
+                "name": "foo",
+                "type": "TEXT",
+                "notnull": 0,
+                "dflt_value": None,
+                "pk": 0,
             },
             {
-                'cid': 1,
-                'name': 'bar',
-                'type': 'INTEGER',
-                'notnull': 0,
-                'dflt_value': None,
-                'pk': 0
-            }
+                "cid": 1,
+                "name": "bar",
+                "type": "INTEGER",
+                "notnull": 0,
+                "dflt_value": None,
+                "pk": 0,
+            },
         ]
         actual = db.schema(tablename)
         self.assertEqual(actual, expected)

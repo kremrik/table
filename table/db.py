@@ -5,10 +5,10 @@ from datetime import date, datetime
 from functools import partial, lru_cache, wraps
 from hashlib import sha1
 from typing import (
-    Any, 
-    Callable, 
-    Dict, 
-    List, 
+    Any,
+    Callable,
+    Dict,
+    List,
     Optional,
     Tuple,
     Union,
@@ -31,7 +31,7 @@ TYPES = defaultdict(
         float: "REAL",
         int: "INTEGER",
         str: "TEXT",
-    }
+    },
 )
 
 
@@ -105,9 +105,7 @@ class Database:
         return True
 
     def create_index(
-        self, 
-        table: str, 
-        columns: Union[str, List[str]]
+        self, table: str, columns: Union[str, List[str]]
     ) -> bool:
         create_index(self._con, table, columns)
         return True
@@ -149,7 +147,9 @@ class Database:
 
         self._serializers[table].append(serializer)
 
-        LOGGER.debug(f"Registered serializer [{serializer}]")
+        LOGGER.debug(
+            f"Registered serializer [{serializer}]"
+        )
 
     def _deregister_serializer(
         self,
@@ -182,22 +182,23 @@ def fwdexception(fnc: Callable):
             return fnc(*args, **kwargs)
         except Error as e:
             raise DatabaseError from e
+
     return wrapper
 
 
 @fwdexception
 def execute(
     con: Connection,
-    query: str, 
-    bind: Optional[Union[tuple, List[tuple]]] = None
+    query: str,
+    bind: Optional[Union[tuple, List[tuple]]] = None,
 ) -> List[tuple]:
     if not bind:
         bind = ()
-    
+
     executor = con.execute
     if isinstance(bind, list):
         executor = con.executemany
-    
+
     cur = executor(query, bind)
     LOGGER.debug(query)
 
@@ -236,7 +237,7 @@ def create_table(
     con: Connection,
     name: str,
     schema: Dict[str, type],
-    mapping: Optional[dict] = None
+    mapping: Optional[dict] = None,
 ) -> None:
     if not mapping:
         mapping = TYPES
@@ -261,9 +262,9 @@ def drop_table(con: Connection, name: str) -> None:
 
 @fwdexception
 def create_index(
-    con: Connection, 
-    table: str, 
-    columns: Union[str, List[str]]
+    con: Connection,
+    table: str,
+    columns: Union[str, List[str]],
 ) -> None:
     stmt = "CREATE INDEX {idx_nm} ON {tbl_nm} ({cols})"
 
@@ -294,8 +295,7 @@ def get_schema(
     cur.close()
 
     return schema_definition(
-        columns=columns,
-        fields=fields
+        columns=columns, fields=fields
     )
 
 
@@ -307,14 +307,13 @@ def create_db(db: str) -> Connection:
 
     LOGGER.debug(f"Database created [{db}]")
     LOGGER.debug(f"Connection created [{con}]")
-    
+
     return con
 
 
 @fwdexception
 def config_mmap(
-    con: Connection,
-    page_size: int = 268435456
+    con: Connection, page_size: int = 268435456
 ) -> None:
     stmt = f"PRAGMA mmap_size={page_size}"
     con.execute(stmt)
@@ -332,21 +331,21 @@ def schema_definition(
         output.append(d)
     return output
 
+
 def ddl_from_schema(
     table_name: str,
     schema: Dict[str, type],
     mapping: Dict[type, str],
 ) -> str:
-    template = "CREATE TABLE IF NOT EXISTS {tname} ({schem})"
+    template = (
+        "CREATE TABLE IF NOT EXISTS {tname} ({schem})"
+    )
 
     col_def = partial(_col_def, mapping)
     schem = ", ".join(map(col_def, schema.items()))
 
-    return template.format(
-        tname=table_name,
-        schem=schem
-    )
-    
+    return template.format(tname=table_name, schem=schem)
+
 
 def _col_def(
     mapping: Dict[type, str], schema_kv: tuple
@@ -365,11 +364,8 @@ def insert_statement_from_schema(
 
     holdr = _placeholder_def(schema)
 
-    return template.format(
-        tname=table_name,
-        holdr=holdr
-    )
-    
+    return template.format(tname=table_name, holdr=holdr)
+
 
 def _placeholder_def(schema: Dict[type, str]) -> str:
     return ", ".join(["?"] * len(schema))
@@ -390,10 +386,7 @@ def index_name(table: str) -> str:
 
 
 def get_cols(description):
-    return tuple([
-        d[0]
-        for d in description
-    ])
+    return tuple([d[0] for d in description])
 
 
 def schemas_match(given: dict, have: List[dict]) -> bool:
@@ -401,10 +394,7 @@ def schemas_match(given: dict, have: List[dict]) -> bool:
 
     given_cols = set(given)
 
-    have_cols = set([
-        col["name"]
-        for col in have
-    ])
+    have_cols = set([col["name"] for col in have])
 
     if given_cols - have_cols or have_cols - given_cols:
         return False

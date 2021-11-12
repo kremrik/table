@@ -11,7 +11,7 @@ class TestTable(unittest.TestCase):
         class Foo:
             name: str
             age: int
-        
+
         table = Table(Foo)
 
         record = Foo("Joe", 30)
@@ -26,7 +26,7 @@ class TestTable(unittest.TestCase):
         class Foo:
             name: str
             age: int
-        
+
         table = Table(Foo)
 
         record1 = Foo("Joe", 30)
@@ -43,7 +43,7 @@ class TestTable(unittest.TestCase):
         class Foo:
             name: str
             age: int
-        
+
         table = Table(Foo)
 
         record1 = Foo("Joe", 30)
@@ -52,7 +52,9 @@ class TestTable(unittest.TestCase):
         table.insert(records)
 
         expected = [("Bill", 40)]
-        actual = table.query("select * from foo where age > 30")
+        actual = table.query(
+            "select * from foo where age > 30"
+        )
         self.assertEqual(actual, expected)
 
     def test_aggregate_query(self):
@@ -60,7 +62,7 @@ class TestTable(unittest.TestCase):
         class Foo:
             name: str
             age: int
-        
+
         table = Table(Foo)
 
         record1 = Foo("Joe", 30)
@@ -69,7 +71,9 @@ class TestTable(unittest.TestCase):
         table.insert(records)
 
         expected = [(70,)]
-        actual = table.query("select sum(age) as sum_age from foo")
+        actual = table.query(
+            "select sum(age) as sum_age from foo"
+        )
         self.assertEqual(actual, expected)
 
     def test_date_datetime(self):
@@ -77,7 +81,7 @@ class TestTable(unittest.TestCase):
         class Foo:
             dt: date
             dt_tm: datetime
-        
+
         table = Table(Foo)
 
         dt = date.today()
@@ -95,7 +99,7 @@ class TestTable(unittest.TestCase):
         class Foo:
             Name: str
             Age: int
-        
+
         table = Table(Foo)
 
         record1 = Foo("Joe", 30)
@@ -108,7 +112,7 @@ class TestTable(unittest.TestCase):
             "columns": {
                 "name": "TEXT",
                 "age": "INTEGER",
-            }
+            },
         }
         actual = table.schema
         self.assertEqual(actual, expected)

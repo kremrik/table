@@ -1,11 +1,16 @@
-from table.db import Converter, Database, DatabaseError, DatabaseWarning
+from table.db import (
+    Converter,
+    Database,
+    DatabaseError,
+    DatabaseWarning,
+)
 
 import logging
 from functools import partial
 from typing import (
-    List, 
-    Optional, 
-    TypeVar, 
+    List,
+    Optional,
+    TypeVar,
     Union,
 )
 
@@ -23,11 +28,11 @@ class TableError(Exception):
 
 class Table:
     def __init__(
-        self, 
+        self,
         dclass: Dataclass,
         location: Optional[str] = None,
         # serializers: Optional[List[Converter]] = None,
-        index_columns: bool = False
+        index_columns: bool = False,
     ) -> None:
         self.dclass = dclass
         self.location = location
@@ -37,9 +42,11 @@ class Table:
         self._name = dclass.__name__.lower()
         self._schema = {
             col.lower(): typ
-            for col, typ in dclass.__dict__["__annotations__"].items()
+            for col, typ in dclass.__dict__[
+                "__annotations__"
+            ].items()
         }
-        self._db = None
+        self._db: Database = None
 
         self._start()
 
@@ -47,13 +54,9 @@ class Table:
     def schema(self) -> dict:
         db_schema = self._db.schema(self._name)
         columns = {
-            col["name"]: col["type"]
-            for col in db_schema
+            col["name"]: col["type"] for col in db_schema
         }
-        full = {
-            "table": self._name,
-            "columns": columns
-        }
+        full = {"table": self._name, "columns": columns}
         return full
 
     def insert(
@@ -72,18 +75,18 @@ class Table:
         count = self._db.insert(
             table=self._name,
             schema=self._schema,
-            data=records
+            data=records,
         )
 
         return count
 
     def query(
         self,
-        querystring: str, 
-        variables: Optional[tuple] = None
+        querystring: str,
+        variables: Optional[tuple] = None,
     ) -> List[Optional[Dataclass]]:
         return self._db.execute(querystring, variables)
-        
+
     def _start(self):
         db = Database(self.location)
 
@@ -116,6 +119,6 @@ def format_insert(
     if not isinstance(record, model):
         msg = f"Data must be of type '{model}'"
         raise TypeError(msg)
-    
+
     r = tuple(record.__dict__.values())
     return r
