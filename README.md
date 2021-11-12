@@ -65,7 +65,7 @@ pip install . --upgrade
 ### TODO
 
 ##### VERSION 1
-- [ ] error handling and testing for erroneous inputs
+- [x] error handling and testing for erroneous inputs
 - [x] check if table for given DB already exists
 - [x] if db already exists, check that `dclass` matches `schema`
 - [x] create profiler base

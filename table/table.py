@@ -1,4 +1,4 @@
-from table.db import Converter, Database
+from table.db import Converter, Database, DatabaseError, DatabaseWarning
 
 import logging
 from functools import partial
@@ -86,12 +86,18 @@ class Table:
         
     def _start(self):
         db = Database(self.location)
-        db.create_table(
-            name=self._name,
-            schema=self._schema,
-            # serializers=self.serializers,
-        )
-        self._db = db
+
+        try:
+            db.create_table(
+                name=self._name,
+                schema=self._schema,
+                # serializers=self.serializers,
+            )
+            self._db = db
+        except DatabaseWarning as e:
+            print(e)
+        except DatabaseError as e:
+            raise TableError from e
 
         if self.index_columns:
             cols = list(self._schema)
