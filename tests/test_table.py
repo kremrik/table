@@ -89,3 +89,23 @@ class TestTable(unittest.TestCase):
         expected = [(dt, dt_tm)]
         actual = table.query("select * from foo")
         self.assertEqual(actual, expected)
+
+    def test_lowers_col_names(self):
+        @dataclass
+        class Foo:
+            Name: str
+            Age: int
+        
+        table = Table(Foo)
+
+        record1 = Foo("Joe", 30)
+        record2 = Foo("Bill", 40)
+        records = [record1, record2]
+        table.insert(records)
+
+        expected = {
+            "name": "TEXT",
+            "age": "INTEGER",
+        }
+        actual = table.schema
+        self.assertEqual(actual, expected)

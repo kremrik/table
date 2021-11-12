@@ -35,10 +35,22 @@ class Table:
         self.index_columns = index_columns
 
         self._name = dclass.__name__.lower()
-        self._schema = dclass.__dict__["__annotations__"]  # TODO: lower names
+        self._schema = {
+            col.lower(): typ
+            for col, typ in dclass.__dict__["__annotations__"].items()
+        }
         self._db = None
 
         self._start()
+
+    @property
+    def schema(self) -> dict:
+        db_schema = self._db.schema(self._name)
+        s = {
+            col["name"]: col["type"]
+            for col in db_schema
+        }
+        return s
 
     def insert(
         self, data: Union[Dataclass, List[Dataclass]]
