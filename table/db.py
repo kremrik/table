@@ -55,10 +55,11 @@ class Database:
     def __init__(
         self,
         db: Optional[str] = None,
+        db_size: Optional[int] = None
     ) -> None:
         self.db = db or ":memory:"
+        self.db_size = db_size or 268435456
 
-        self._serializers: Dict[str, Converter] = {}
         self._in_mem = not db
         self._con = None
 
@@ -68,7 +69,6 @@ class Database:
         self,
         name: str,
         schema: Dict[str, type],
-        serializers: Optional[List[Converter]] = None,
     ) -> bool:
         if table_exists(self._con, name):
             _schem = self.schema(name)
@@ -81,28 +81,11 @@ class Database:
             msg = f"Table '{name}' exists, proceeding"
             raise DatabaseWarning(msg)
 
-        # TODO: if a serializer is present, we need to use
-        #  that as the column type definition
-        # TODO: if table exists, need to load and register
-        #  serializers from DB
-
-        if not serializers:
-            serializers = []
-
-        for s in serializers:
-            self._register_serializer(name, s)
-
         create_table(self._con, name, schema)
         return True
 
     def drop_table(self, name: str) -> bool:
         drop_table(self._con, name)
-
-        serializers = self._serializers.get(name, [])
-        for s in serializers:
-            self._deregister_serializer(name, s)
-
-        return True
 
     def create_index(
         self, table: str, columns: Union[str, List[str]]
@@ -129,38 +112,6 @@ class Database:
     def schema(self, tablename: str) -> List[dict]:
         return get_schema(self._con, tablename)
 
-    def _register_serializer(
-        self,
-        table: str,
-        serializer: Converter,
-    ):
-        adapter = serializer.adapter
-        converter = Converter.converter
-        column = serializer.column
-        obj_type = serializer.type
-
-        sqlite3.register_adapter(obj_type, adapter)
-        sqlite3.register_converter(column, converter)
-
-        if table not in self._serializers:
-            self._serializers[table] = []
-
-        self._serializers[table].append(serializer)
-
-        LOGGER.debug(
-            f"Registered serializer [{serializer}]"
-        )
-
-    def _deregister_serializer(
-        self,
-        table: str,
-        serializer: Converter,
-    ):
-        self._serializers[table].remove(serializer)
-        LOGGER.debug(
-            f"Deregistered serializer [{serializer}]"
-        )
-
     def _start(self):
         self._pre_config()
         self._con = create_db(self.db)
@@ -171,7 +122,7 @@ class Database:
 
     def _post_config(self):
         if not self._in_mem:
-            config_mmap(self._con)
+            config_mmap(self._con, self.db_size)
 
 
 # ---------------------------------------------------------
@@ -313,8 +264,9 @@ def create_db(db: str) -> Connection:
 
 @fwdexception
 def config_mmap(
-    con: Connection, page_size: int = 268435456
+    con: Connection, page_size: int
 ) -> None:
+    # https://www.sqlite.org/mmap.html
     stmt = f"PRAGMA mmap_size={page_size}"
     con.execute(stmt)
     LOGGER.debug(stmt)
