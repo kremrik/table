@@ -89,7 +89,9 @@ class Table:
         mmap_size = None
         if self.location and exists(self.location):
             db_size = getsize(self.location)
-            mmap_size = round((db_size / 1024) * 1.5) * 1024
+            mmap_size = (
+                round((db_size / 1024) * 1.5) * 1024
+            )
             LOGGER.debug(f"db size: [{db_size}]")
             LOGGER.debug(f"mmap_size: [{mmap_size}]")
 

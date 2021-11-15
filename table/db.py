@@ -42,7 +42,7 @@ class Database:
     def __init__(
         self,
         db: Optional[str] = None,
-        db_size: Optional[int] = None
+        db_size: Optional[int] = None,
     ) -> None:
         self.db = db or ":memory:"
         self.db_size = db_size or 268435456
@@ -261,9 +261,7 @@ def create_db(db: str) -> Connection:
 
 
 @fwdexception
-def config_mmap(
-    con: Connection, page_size: int
-) -> None:
+def config_mmap(con: Connection, page_size: int) -> None:
     # https://www.sqlite.org/mmap.html
     stmt = f"PRAGMA mmap_size={page_size}"
     con.execute(stmt)
@@ -352,7 +350,9 @@ def schemas_match(given: dict, have: List[dict]) -> bool:
     return True
 
 
-def schema_is_invalid(given: dict, allowed: List[type]) -> Optional[set]:
+def schema_is_invalid(
+    given: dict, allowed: List[type]
+) -> Optional[set]:
     s_given = set(given.values())
     s_allowed = set(allowed)
 
