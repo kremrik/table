@@ -100,3 +100,11 @@ class TestDatabase(unittest.TestCase):
             tablename = "test"
             schema = {"foo": str, "baz": str}
             db.create_table(tablename, schema)
+
+    def test_schema_with_bad_type(self):
+        db = Database()
+        tablename = "test"
+        schema = {"foo": set, "bar": int}
+
+        with self.assertRaises(DatabaseError):
+            db.create_table(tablename, schema)

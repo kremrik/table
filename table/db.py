@@ -19,18 +19,15 @@ LOGGER = logging.getLogger(__name__)
 SQLiteType = Union[bytes, float, int, str]
 
 
-TYPES = defaultdict(
-    lambda: "BLOB",  # TODO: might be dumb
-    {
-        bytes: "TEXT",
-        bool: "NUMERIC",
-        date: "DATE",
-        datetime: "TIMESTAMP",
-        float: "REAL",
-        int: "INTEGER",
-        str: "TEXT",
-    },
-)
+TYPES = {
+    bytes: "TEXT",
+    bool: "NUMERIC",
+    date: "DATE",
+    datetime: "TIMESTAMP",
+    float: "REAL",
+    int: "INTEGER",
+    str: "TEXT",
+}
 
 
 class DatabaseError(Exception):
@@ -60,6 +57,12 @@ class Database:
         name: str,
         schema: Dict[str, type],
     ) -> bool:
+        types = list(TYPES)
+        if diff := schema_is_invalid(schema, types):
+            diff = list(diff)
+            msg = f"Schema has disallowed types: {diff}; Allowed: {types}"
+            raise DatabaseError(msg)
+
         if table_exists(self._con, name):
             _schem = self.schema(name)
 
@@ -342,3 +345,12 @@ def schemas_match(given: dict, have: List[dict]) -> bool:
         return False
 
     return True
+
+
+def schema_is_invalid(given: dict, allowed: List[type]) -> Optional[set]:
+    s_given = set(given.values())
+    s_allowed = set(allowed)
+
+    diff = s_given - s_allowed
+    if diff:
+        return diff
