@@ -12,6 +12,7 @@ from typing import (
     TypeVar,
     Union,
 )
+from os.path import exists, getsize
 
 
 __all__ = ["Table"]
@@ -71,6 +72,7 @@ class Table:
         records = xformer(data)
         count = self._db.insert(
             table=self._name,
+            schema=self._schema,
             data=records,
         )
 
@@ -84,22 +86,33 @@ class Table:
         return self._db.execute(querystring, variables)
 
     def _start(self):
-        db = Database(self.location)
+        mmap_size = None
+        if self.location and exists(self.location):
+            db_size = getsize(self.location)
+            mmap_size = round((db_size / 1024) * 1.5) * 1024
+            LOGGER.debug(f"db size: [{db_size}]")
+            LOGGER.debug(f"mmap_size: [{mmap_size}]")
+
+        db = Database(self.location, mmap_size)
+        self._db = db
 
         try:
-            db.create_table(
+            self._db.create_table(
                 name=self._name,
                 schema=self._schema,
             )
-            self._db = db
         except DatabaseWarning as e:
             print(e)
         except DatabaseError as e:
             raise TableError from e
 
         if self.index_columns:
-            cols = list(self._schema)
-            self._db.create_index(self._name, cols)
+            try:
+                cols = list(self._schema)
+                self._db.create_index(self._name, cols)
+            except DatabaseError as e:
+                LOGGER.error(e)
+                print("Table already indexed, proceeding")
 
         LOGGER.debug(
             f"Table created with model [{self.dclass}]"

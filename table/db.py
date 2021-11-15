@@ -1,5 +1,5 @@
 import logging
-from collections import defaultdict, namedtuple
+from collections import namedtuple
 from datetime import date, datetime
 from functools import partial, lru_cache, wraps
 from hashlib import sha1
@@ -68,7 +68,6 @@ class Database:
 
         if table_exists(self._con, name):
             _schem = self.schema(name)
-
             if not schemas_match(schema, _schem):
                 msg = f"Table '{name}' exists, but schemas do not match"
                 LOGGER.debug(f"Existing schema [{_schem}]")
@@ -95,9 +94,9 @@ class Database:
     def insert(
         self,
         table: str,
+        schema: dict,
         data: Union[tuple, List[tuple]],
     ) -> bool:
-        schema = self._tables[table]
         stmt = insert_statement_from_schema(table, schema)
         execute(self._con, stmt, data)
         return True

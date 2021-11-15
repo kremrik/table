@@ -15,6 +15,7 @@ class Foo:
     age: int
 
 table = Table(Foo, index_columns=True)
+# table = Table(Foo, location="test.db", index_columns=True)
 
 record1 = Foo("Joe", 30)
 record2 = Foo("Bill", 40)
