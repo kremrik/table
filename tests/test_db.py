@@ -1,5 +1,4 @@
 from table.db import (
-    Converter,
     Database,
     DatabaseError,
     DatabaseWarning,

@@ -1,11 +1,9 @@
 import logging
 from collections import defaultdict, namedtuple
-from dataclasses import dataclass
 from datetime import date, datetime
 from functools import partial, lru_cache, wraps
 from hashlib import sha1
 from typing import (
-    Any,
     Callable,
     Dict,
     List,
@@ -41,14 +39,6 @@ class DatabaseError(Exception):
 
 class DatabaseWarning(Warning):
     pass
-
-
-@dataclass
-class Converter:
-    column: str
-    type: type
-    adapter: Callable[[Any], SQLiteType]
-    converter: Callable[[bytes], Any]
 
 
 class Database:
