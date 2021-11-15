@@ -49,6 +49,7 @@ class Database:
 
         self._in_mem = not db
         self._con = None
+        self._tables: Dict[str, Dict[str, type]] = {}
 
         self._start()
 
@@ -57,6 +58,8 @@ class Database:
         name: str,
         schema: Dict[str, type],
     ) -> bool:
+        # TODO: this can probably be cleaned up
+
         types = list(TYPES)
         if diff := schema_is_invalid(schema, types):
             diff = list(diff)
@@ -75,6 +78,9 @@ class Database:
             raise DatabaseWarning(msg)
 
         create_table(self._con, name, schema)
+
+        self._tables[name] = schema
+
         return True
 
     def drop_table(self, name: str) -> bool:
@@ -89,9 +95,9 @@ class Database:
     def insert(
         self,
         table: str,
-        schema: Dict[str, type],
         data: Union[tuple, List[tuple]],
     ) -> bool:
+        schema = self._tables[table]
         stmt = insert_statement_from_schema(table, schema)
         execute(self._con, stmt, data)
         return True

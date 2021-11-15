@@ -71,7 +71,6 @@ class Table:
         records = xformer(data)
         count = self._db.insert(
             table=self._name,
-            schema=self._schema,
             data=records,
         )
 
