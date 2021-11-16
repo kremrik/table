@@ -92,11 +92,31 @@ class Table:
             self._create_index()
 
     def _create_db(self):
-        self._db = create_database(self.location)
+        mmap_size = None
+        if self.location and exists(self.location):
+            db_size = getsize(self.location)
+            mmap_size = (
+                round((db_size / 1024) * 1.5) * 1024
+            )
+            LOGGER.debug(f"db size: [{db_size}]")
+            LOGGER.debug(f"mmap_size: [{mmap_size}]")
+
+        db = Database(self.location, mmap_size)
+        self._db = db
 
     def _create_table(self):
-        return create_table(
-            self._db, self._name, self._schema
+        try:
+            self._db.create_table(
+                name=self._name,
+                schema=self._schema,
+            )
+        except DatabaseWarning as e:
+            print(e)
+        except DatabaseError as e:
+            raise TableError from e
+
+        LOGGER.debug(
+            f"Table created with model [{self.dclass}]"
         )
 
     def _create_index(self):
@@ -106,37 +126,6 @@ class Table:
         except DatabaseError as e:
             LOGGER.error(e)
             print("Table already indexed, proceeding")
-
-
-# ---------------------------------------------------------
-def create_database(location: str) -> Database:
-    mmap_size = None
-    if location and exists(location):
-        db_size = getsize(location)
-        mmap_size = round((db_size / 1024) * 1.5) * 1024
-        LOGGER.debug(f"db size: [{db_size}]")
-        LOGGER.debug(f"mmap_size: [{mmap_size}]")
-
-    db = Database(location, mmap_size)
-    return db
-
-
-def create_table(
-    db: Database,
-    name: str,
-    schema: dict,
-) -> None:
-    try:
-        db.create_table(
-            name=name,
-            schema=schema,
-        )
-    except DatabaseWarning as e:
-        print(e)
-    except DatabaseError as e:
-        raise TableError from e
-
-    LOGGER.debug(f"Table created with schema [{schema}]")
 
 
 # ---------------------------------------------------------
