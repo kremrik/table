@@ -31,6 +31,13 @@ black-format :
 	@echo -e 		'------------$(NO_COLOR)'
 	@black $(MODULE) tests -l $(LINE_LENGTH)
 
+.PHONY: black-check
+black-check :
+	@echo
+	@echo -e '$(BLUE)black-format'
+	@echo -e 		'------------$(NO_COLOR)'
+	@black $(MODULE) tests -l $(LINE_LENGTH) --check
+
 .PHONY: flake8-lint
 flake8-lint :
 	@echo
