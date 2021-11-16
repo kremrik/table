@@ -95,18 +95,8 @@ class Table:
         self._db = create_database(self.location)
 
     def _create_table(self):
-        try:
-            self._db.create_table(
-                name=self._name,
-                schema=self._schema,
-            )
-        except DatabaseWarning as e:
-            print(e)
-        except DatabaseError as e:
-            raise TableError from e
-
-        LOGGER.debug(
-            f"Table created with model [{self.dclass}]"
+        return create_table(
+            self._db, self._name, self._schema
         )
 
     def _create_index(self):
@@ -129,6 +119,24 @@ def create_database(location: str) -> Database:
 
     db = Database(location, mmap_size)
     return db
+
+
+def create_table(
+    db: Database,
+    name: str,
+    schema: dict,
+) -> None:
+    try:
+        db.create_table(
+            name=name,
+            schema=schema,
+        )
+    except DatabaseWarning as e:
+        print(e)
+    except DatabaseError as e:
+        raise TableError from e
+
+    LOGGER.debug(f"Table created with schema [{schema}]")
 
 
 # ---------------------------------------------------------
