@@ -50,7 +50,12 @@ class Table:
 
     @property
     def schema(self) -> dict:
-        return get_schema(self._db, self._name)
+        db_schema = self._db.schema(self._name)
+        columns = {
+            col["name"]: col["type"] for col in db_schema
+        }
+        full = {"table": self._name, "columns": columns}
+        return full
 
     def insert(
         self, data: Union[Dataclass, List[Dataclass]]
@@ -114,16 +119,6 @@ class Table:
         LOGGER.debug(
             f"Table created with model [{self.dclass}]"
         )
-
-
-# ---------------------------------------------------------
-def get_schema(db: Database, table: str) -> dict:
-    db_schema = db.schema(table)
-    columns = {
-        col["name"]: col["type"] for col in db_schema
-    }
-    full = {"table": table, "columns": columns}
-    return full
 
 
 # ---------------------------------------------------------
