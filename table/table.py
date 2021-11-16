@@ -87,28 +87,9 @@ class Table:
 
     def _start(self):
         self._create_db()
-
-        try:
-            self._db.create_table(
-                name=self._name,
-                schema=self._schema,
-            )
-        except DatabaseWarning as e:
-            print(e)
-        except DatabaseError as e:
-            raise TableError from e
-
+        self._create_table()
         if self.index_columns:
-            try:
-                cols = list(self._schema)
-                self._db.create_index(self._name, cols)
-            except DatabaseError as e:
-                LOGGER.error(e)
-                print("Table already indexed, proceeding")
-
-        LOGGER.debug(
-            f"Table created with model [{self.dclass}]"
-        )
+            self._create_index()
 
     def _create_db(self):
         mmap_size = None
@@ -122,6 +103,29 @@ class Table:
 
         db = Database(self.location, mmap_size)
         self._db = db
+
+    def _create_table(self):
+        try:
+            self._db.create_table(
+                name=self._name,
+                schema=self._schema,
+            )
+        except DatabaseWarning as e:
+            print(e)
+        except DatabaseError as e:
+            raise TableError from e
+
+        LOGGER.debug(
+            f"Table created with model [{self.dclass}]"
+        )
+
+    def _create_index(self):
+        try:
+            cols = list(self._schema)
+            self._db.create_index(self._name, cols)
+        except DatabaseError as e:
+            LOGGER.error(e)
+            print("Table already indexed, proceeding")
 
 
 # ---------------------------------------------------------
