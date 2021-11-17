@@ -108,3 +108,14 @@ class TestDatabase(unittest.TestCase):
 
         with self.assertRaises(DatabaseError):
             db.create_table(tablename, schema)
+
+    def test_table_exists(self):
+        db = Database()
+
+        tablename = "test"
+        schema = {"foo": str, "bar": int}
+
+        self.assertFalse(db.table_exists(tablename))
+
+        db.create_table(tablename, schema)
+        self.assertTrue(db.table_exists(tablename))

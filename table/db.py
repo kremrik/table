@@ -1,3 +1,13 @@
+"""
+This module could have been designed in an extensible way
+in order to allow for connections to other databases.
+However, the intention was to remain entirely within the
+standard library. As Python only ships with one SQL
+database (which is more than most languages can claim), the
+need to support others was deemed unnecessary.
+"""
+
+
 import logging
 from collections import namedtuple
 from datetime import date, datetime
@@ -51,7 +61,7 @@ class Database:
         self._con = None
         self._tables: Dict[str, Dict[str, type]] = {}
 
-        self._start()
+        self._connect()
 
     def create_table(
         self,
@@ -66,7 +76,7 @@ class Database:
             msg = f"Schema has disallowed types: {diff}; Allowed: {types}"
             raise DatabaseError(msg)
 
-        if table_exists(self._con, name):
+        if self.table_exists(name):
             _schem = self.schema(name)
             if not schemas_match(schema, _schem):
                 msg = f"Table '{name}' exists, but schemas do not match"
@@ -82,8 +92,11 @@ class Database:
 
         return True
 
+    def table_exists(self, name: str) -> bool:
+        return table_exists(self._con, name)
+
     def drop_table(self, name: str) -> bool:
-        drop_table(self._con, name)
+        return drop_table(self._con, name)
 
     def create_index(
         self, table: str, columns: Union[str, List[str]]
@@ -110,7 +123,7 @@ class Database:
     def schema(self, tablename: str) -> List[dict]:
         return get_schema(self._con, tablename)
 
-    def _start(self):
+    def _connect(self):
         self._pre_config()
         self._con = create_db(self.db)
         self._post_config()

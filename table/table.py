@@ -1,8 +1,16 @@
+"""
+There are two types of `Table`s that can be created:
+  (1) in-memory, which is the simplest
+  (2) persistent, which is durable and more complex
+"""
+
+
 from table.db import (
     Database,
     DatabaseError,
     DatabaseWarning,
 )
+from table.errors import TableError
 
 import logging
 from functools import partial
@@ -20,10 +28,6 @@ __all__ = ["Table"]
 
 LOGGER = logging.getLogger(__name__)
 Dataclass = TypeVar("Dataclass")
-
-
-class TableError(Exception):
-    pass
 
 
 class Table:
