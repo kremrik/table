@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from datetime import date, datetime
 
 
-class TestTable(unittest.TestCase):
+class TestInMemoryTable(unittest.TestCase):
     def test_simple(self):
         @dataclass
         class Foo:

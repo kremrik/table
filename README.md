@@ -9,7 +9,7 @@ It's entirely driven by a single Python standard library `dataclasses.dataclass`
 
 ### Examples
 ```python
-from table import Table
+from table import table
 from datetime import datetime
 from dataclasses import dataclass
 
@@ -22,8 +22,8 @@ class Person:
     timestamp: datetime = datetime.now()
 
 # create an in-memory table
-person = Table(Person)
-# person = Table(Person, "person.db")  # creates the same table on disk
+person = table(Person)
+# person = table(Person, "person.db")  # creates the same table on disk
 
 p1 = Person("Joe Schmo", 40, "100 Place Ln", "joe@schmo.com")
 p2 = Person("Bill Bob", 60, "111 Cool Town", "bill@bob.com")
@@ -70,7 +70,7 @@ pip install . --upgrade
 - [x] if db already exists, check that `dclass` matches `schema`
 - [x] create profiler base
 - [ ] create benchmark base (with local DB to track history)
-- [ ] implement metadata db table upon instantiation to validate the given model if the given name is different than the one that already exists (even if schema is the same)
+- [ ] create db method to dump in-mem table to disk
 
 ##### VERSION 2
 - [ ] write serializers to db in "private" table to be re-initialized on launch
