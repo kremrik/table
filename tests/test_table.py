@@ -1,4 +1,5 @@
-from table.table import Table, TableError
+from table.table import table as table_
+from table.errors import TableError
 
 import unittest
 from dataclasses import dataclass
@@ -12,7 +13,7 @@ class TestTable(unittest.TestCase):
             name: str
             age: int
 
-        table = Table(Foo)
+        table = table_(Foo)
 
         record = Foo("Joe", 30)
         table.insert(record)
@@ -27,7 +28,7 @@ class TestTable(unittest.TestCase):
             name: str
             age: int
 
-        table = Table(Foo)
+        table = table_(Foo)
 
         record1 = Foo("Joe", 30)
         record2 = Foo("Bill", 40)
@@ -44,7 +45,7 @@ class TestTable(unittest.TestCase):
             name: str
             age: int
 
-        table = Table(Foo)
+        table = table_(Foo)
 
         record1 = Foo("Joe", 30)
         record2 = Foo("Bill", 40)
@@ -63,7 +64,7 @@ class TestTable(unittest.TestCase):
             name: str
             age: int
 
-        table = Table(Foo)
+        table = table_(Foo)
 
         record1 = Foo("Joe", 30)
         record2 = Foo("Bill", 40)
@@ -82,7 +83,7 @@ class TestTable(unittest.TestCase):
             dt: date
             dt_tm: datetime
 
-        table = Table(Foo)
+        table = table_(Foo)
 
         dt = date.today()
         dt_tm = datetime.now()
@@ -100,7 +101,7 @@ class TestTable(unittest.TestCase):
             Name: str
             Age: int
 
-        table = Table(Foo)
+        table = table_(Foo)
 
         record1 = Foo("Joe", 30)
         record2 = Foo("Bill", 40)
