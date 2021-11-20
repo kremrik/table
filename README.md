@@ -9,7 +9,7 @@ It's entirely driven by a single Python standard library `dataclasses.dataclass`
 
 ### Motivation
 When I was working accounting and finance jobs at the beginning of my career, MS Excel was the GOAT.
-It gave me (and everyone around me) the power to persist and clean data, extract insights through visualizations,, engage in "feature engineering", and so much more.
+It gave me (and everyone around me) the power to persist and clean data, extract insights through visualizations, engage in "feature engineering", and so much more.
 Excel also possessed some weaknesses as a result of the (intentional) tradeoffs required to make these strengths a reality;
 most notably performance (which can suffer even with a few dozen MiB of data) and the "wild west" feel that comes with the freedom to mix arbitrary data types/structures, formulas, and formats (among other weirdness).
 `table` was designed not to mimic Excel, but to take inspiration from some of its most user-friendly features.
