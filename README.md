@@ -12,6 +12,7 @@ When I was working accounting and finance jobs at the beginning of my career, MS
 It gave me (and everyone around me) the power to persist and clean data, extract insights through visualizations, engage in "feature engineering", and so much more.
 Excel also possessed some weaknesses as a result of the (intentional) tradeoffs required to make these strengths a reality;
 most notably performance (which can suffer even with a few dozen MiB of data) and the "wild west" feel that comes with the freedom to mix arbitrary data types/structures, formulas, and formats (among other weirdness).
+
 `table` was designed not to mimic Excel, but to take inspiration from some of its most user-friendly features.
 At the same time, it incorporates some of the best advantages that a true programming language and genuine database have to offer.
 The end result is something that attempts to capture the "niceness" of Excel and the performance of a database, while mitigating some of the most unpleasant characteristics of either one.
