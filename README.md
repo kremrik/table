@@ -4,7 +4,18 @@ A "datatype" that sits between a dictionary and database
 
 ### Overview
 `table` is a simple module for working with tabular data.
-It's entirely driven by a single Python standard library `dataclasses.dataclass` object, but provides the user with a powerful SQL interface and fast, indexed, in-memory (or memory-mapped on disk) performance out of the box.
+It's entirely driven by a single Python standard library `dataclasses.dataclass` object, but provides the user with a powerful SQL interface and fast, indexed, in-memory (or memory-mapped) performance out of the box.
+
+
+### Motivation
+`When I was working accounting and finance jobs at the beginning of my career, MS Excel was the GOAT.
+It gave me (and everyone around me) the power to persist and clean data, extract insights through visualizations,, engage in "feature engineering", and so much more.
+Excel also possessed some weaknesses as a result of the (intentional) tradeoffs required to make these strengths a reality;
+most notably performance (which can suffer even with a few dozen MiB of data) and the "wild west" feel that comes with the freedom to mix arbitrary data types/structures, formulas, and formats (among other weirdness).
+`table` was designed not to mimic Excel, but to take inspiration from some of its most user-friendly features.
+At the same time, it incorporates some of the best advantages that a true programming language and genuine database have to offer.
+The end result is something that attempts to capture the "niceness" of Excel and the performance of a database, while mitigating some of the most unpleasant characteristics of either one.
+Think of it almost as the anti-`pandas` - a simple, easy to understand tool just for you and your data.
 
 
 ### Example
