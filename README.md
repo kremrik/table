@@ -33,12 +33,28 @@ records = [p1, p2, p3]
 person.insert(records)
 
 person.query("select * from person")
++--------------+-----+-----------------+---------------+----------------------------+
+|     name     | age |     address     |     email     |         timestamp          |
++--------------+-----+-----------------+---------------+----------------------------+
+|    Joe Schmo |  40 |    100 Place Ln | joe@schmo.com | 2021-11-20 12:42:19.246508 |
+|     Bill Bob |  60 |   111 Cool Town |  bill@bob.com | 2021-11-20 12:42:19.246508 |
+| Yackley Yoot |  25 | Bumblefartville |          None | 2021-11-20 12:42:19.246508 |
++--------------+-----+-----------------+---------------+----------------------------+
+
+person.query("select avg(age) as avg_age from person")
++--------------------+
+|      avg_age       |
++--------------------+
+| 41.666666666666664 |
++--------------------+
+
+# the output from the `query` method is an instance of `table.results.Results`.
+# if you want the data underlying the tables above, you can access it via the `rows` attribute:
+results = person.query("select * from person")
+results.rows
 [Row(name='Joe Schmo', age=40, address='100 Place Ln', email='joe@schmo.com', timestamp=datetime.datetime(2021, 11, 19, 21, 52, 28, 995979)),
  Row(name='Bill Bob', age=60, address='111 Cool Town', email='bill@bob.com', timestamp=datetime.datetime(2021, 11, 19, 21, 52, 28, 995979)),
  Row(name='Yackley Yoot', age=25, address='Bumblefartville', email=None, timestamp=datetime.datetime(2021, 11, 19, 21, 52, 28, 995979))]
-
-person.query("select avg(age) as avg_age from person")
-[Row(avg_age=41.666666666666664)]
 ```
 
 
