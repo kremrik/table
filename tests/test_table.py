@@ -4,6 +4,8 @@ from table.errors import TableError
 import unittest
 from dataclasses import dataclass
 from datetime import date, datetime
+from os import remove
+from os.path import exists
 
 
 class TestInMemoryTable(unittest.TestCase):
@@ -117,3 +119,69 @@ class TestInMemoryTable(unittest.TestCase):
         }
         actual = table.schema
         self.assertEqual(actual, expected)
+
+
+class TestPersistentTable(unittest.TestCase):
+    TEST_DB = ".test_persistent_table.db"
+
+    def setUp(self) -> None:
+        try:
+            remove(self.TEST_DB)
+        except FileNotFoundError:
+            pass
+
+    def tearDown(self) -> None:
+        self.setUpClass()
+
+    def test_db_does_not_exist(self):
+        @dataclass
+        class Foo:
+            name: str
+            age: int
+
+        table = table_(Foo, self.TEST_DB)
+
+        record = Foo("Joe", 30)
+        table.insert(record)
+
+        expected = [("Joe", 30)]
+        actual = table.query("select * from foo")
+
+        with self.subTest():
+            self.assertEqual(actual, expected)
+        with self.subTest():
+            self.assertTrue(exists(self.TEST_DB))
+
+    def test_db_and_table_exist(self):
+        @dataclass
+        class Foo:
+            name: str
+            age: int
+
+        table = table_(Foo, self.TEST_DB)
+        record = Foo("Joe", 30)
+        table.insert(record)
+        del table
+
+        table2 = table_(Foo, self.TEST_DB)
+        expected = [("Joe", 30)]
+        actual = table2.query("select * from foo")
+
+        self.assertEqual(actual, expected)
+
+    def test_db_exists_given_wrong_schema(self):
+        @dataclass
+        class Foo:
+            name: str
+            age: int
+
+        table = table_(Foo, self.TEST_DB)
+        del table
+
+        @dataclass
+        class Bar:
+            height: int
+            weight: int
+
+        with self.assertRaises(TableError):
+            table_(Bar, self.TEST_DB)

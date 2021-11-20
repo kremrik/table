@@ -7,6 +7,7 @@ There are two types of `Table`s that can be created:
 
 from table.tables.base import Table
 from table.tables.in_memory import InMemoryTable
+from table.tables.persistent import PersistentTable
 
 from typing import List, Optional, TypeVar
 
@@ -27,5 +28,8 @@ def table(
             index_columns=index_columns,
         )
     else:
-        # create and return PersistentTable
-        pass
+        return PersistentTable(
+            dclass=dclass,
+            location=location,
+            index_columns=index_columns,
+        )
