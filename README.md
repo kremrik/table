@@ -33,11 +33,9 @@ records = [p1, p2, p3]
 person.insert(records)
 
 person.query("select * from person")
-[
-    Row(name='Joe Schmo', age=40, address='100 Place Ln', email='joe@schmo.com', timestamp=datetime.datetime(2021, 11, 8, 20, 45, 4, 956300)),
-    Row(name='Bill Bob', age=60, address='111 Cool Town', email='bill@bob.com', timestamp=datetime.datetime(2021, 11, 8, 20, 45, 4, 956300)),
-    Row(name='Yackley Yoot', age=25, address='Bumblefartville', email=None, timestamp=datetime.datetime(2021, 11, 8, 20, 45, 4, 956300))
-]
+[Row(name='Joe Schmo', age=40, address='100 Place Ln', email='joe@schmo.com', timestamp=datetime.datetime(2021, 11, 19, 21, 52, 28, 995979)),
+ Row(name='Bill Bob', age=60, address='111 Cool Town', email='bill@bob.com', timestamp=datetime.datetime(2021, 11, 19, 21, 52, 28, 995979)),
+ Row(name='Yackley Yoot', age=25, address='Bumblefartville', email=None, timestamp=datetime.datetime(2021, 11, 19, 21, 52, 28, 995979))]
 
 person.query("select avg(age) as avg_age from person")
 [Row(avg_age=41.666666666666664)]
@@ -68,11 +66,12 @@ pip install . --upgrade
 - [x] error handling and testing for erroneous inputs
 - [x] check if table for given DB already exists
 - [x] if db already exists, check that `dclass` matches `schema`
-- [x] create profiler base
-- [ ] create benchmark base (with local DB to track history)
 - [ ] create db method to dump in-mem table to disk
+- [ ] examples directory
 
 ##### VERSION 2
+- [x] create profiler base
+- [ ] create benchmark base (with local DB to track history)
 - [ ] write serializers to db in "private" table to be re-initialized on launch
 - [ ] create history/audit table
 - [ ] ? create process-local "undo" functionality ?
