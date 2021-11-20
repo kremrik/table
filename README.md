@@ -7,7 +7,7 @@ A "datatype" that sits between a dictionary and database
 It's entirely driven by a single Python standard library `dataclasses.dataclass` object, but provides the user with a powerful SQL interface and fast, indexed, in-memory (or memory-mapped on disk) performance out of the box.
 
 
-### Examples
+### Example
 ```python
 from table import table
 from datetime import datetime
@@ -74,4 +74,4 @@ pip install . --upgrade
 - [ ] create benchmark base (with local DB to track history)
 - [ ] write serializers to db in "private" table to be re-initialized on launch
 - [ ] create history/audit table
-- [ ] ? create process-local "undo" functionality ?
+- [ ] ? create "undo" functionality ?
