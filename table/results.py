@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 
 __all__ = ["Results"]
@@ -19,7 +19,10 @@ class Justify(Enum):
     center = "^"
 
 
-def pretty_results(rows: List[tuple]) -> str:
+def pretty_results(rows: List[Optional[tuple]]) -> str:
+    if not rows:
+        return "No results"
+
     sizes = max_column_sizes(rows)
     row_templ = row_template(sizes, Justify.left)
     header_templ = row_template(sizes, Justify.center)
