@@ -1,3 +1,3 @@
 #!/bin/bash
 
-make unit-tests black-check flake8-lint || exit 1
+make pre-commit || exit 1
