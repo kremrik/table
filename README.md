@@ -18,6 +18,14 @@ The end result is something that attempts to capture the "niceness" of Excel and
 Think of it almost as the anti-`pandas` - a simple, easy to understand tool just for you and your data.
 
 
+### What is it _not_?
+`table` is not intended to act like a "real" database.
+Each instance is its own mini db, and there is zero built-in support for things like multiple tables, joins, normalization, alternate backends (like PostgreSQL) etc.
+It is most comfortable working with denormalized data.
+
+Additionally, be aware that I've done little to stop you from shooting yourself in the foot. If you want to do something like `table.query("drop table _YOURTABLE_")`, nothing is going to stop you (for better or worse). I made the decision a while ago (at least for developer-facing tools) to never sacrifice simplicity or functionality in order to "save someone from themselves". We're all adults here, enjoy the freedom!
+
+
 ### Example
 ```python
 from table import table
@@ -67,10 +75,6 @@ results.rows
  Row(name='Bill Bob', age=60, address='111 Cool Town', email='bill@bob.com', timestamp=datetime.datetime(2021, 11, 19, 21, 52, 28, 995979)),
  Row(name='Yackley Yoot', age=25, address='Bumblefartville', email=None, timestamp=datetime.datetime(2021, 11, 19, 21, 52, 28, 995979))]
 ```
-
-
-### A Friendly Warning
-If you are working with a `Table`, be aware that I've done nothing to stop you from shooting yourself in the foot. If you want to do something like `table.query("drop table _YOURTABLE_")`, nothing is going to stop you (for better or worse). I made the decision a while ago (at least for developer-facing tools) to never sacrifice simplicity or functionality in order to "save someone from themselves". We're all adults here, enjoy the freedom!
 
 
 ### Installation (development)
