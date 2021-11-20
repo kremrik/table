@@ -2,6 +2,7 @@ from table.db import (
     Database,
     DatabaseError,
 )
+from table.results import Results
 
 import logging
 from abc import ABC, abstractstaticmethod
@@ -77,7 +78,9 @@ class Table(ABC):
         querystring: str,
         variables: Optional[tuple] = None,
     ) -> List[Optional[Dataclass]]:
-        return self._db.execute(querystring, variables)
+        output = self._db.execute(querystring, variables)
+        results = Results(output)
+        return results
 
     def _start(self):
         self._db = self._connect(

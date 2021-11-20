@@ -22,7 +22,7 @@ class TestInMemoryTable(unittest.TestCase):
 
         expected = [("Joe", 30)]
         actual = table.query("select * from foo")
-        self.assertEqual(actual, expected)
+        self.assertEqual(actual.rows, expected)
 
     def test_insert_many(self):
         @dataclass
@@ -39,7 +39,7 @@ class TestInMemoryTable(unittest.TestCase):
 
         expected = [("Joe", 30), ("Bill", 40)]
         actual = table.query("select * from foo")
-        self.assertEqual(actual, expected)
+        self.assertEqual(actual.rows, expected)
 
     def test_filter_query(self):
         @dataclass
@@ -58,7 +58,7 @@ class TestInMemoryTable(unittest.TestCase):
         actual = table.query(
             "select * from foo where age > 30"
         )
-        self.assertEqual(actual, expected)
+        self.assertEqual(actual.rows, expected)
 
     def test_aggregate_query(self):
         @dataclass
@@ -77,7 +77,7 @@ class TestInMemoryTable(unittest.TestCase):
         actual = table.query(
             "select sum(age) as sum_age from foo"
         )
-        self.assertEqual(actual, expected)
+        self.assertEqual(actual.rows, expected)
 
     def test_date_datetime(self):
         @dataclass
@@ -95,7 +95,7 @@ class TestInMemoryTable(unittest.TestCase):
 
         expected = [(dt, dt_tm)]
         actual = table.query("select * from foo")
-        self.assertEqual(actual, expected)
+        self.assertEqual(actual.rows, expected)
 
     def test_lowers_col_names(self):
         @dataclass
@@ -148,7 +148,7 @@ class TestPersistentTable(unittest.TestCase):
         actual = table.query("select * from foo")
 
         with self.subTest():
-            self.assertEqual(actual, expected)
+            self.assertEqual(actual.rows, expected)
         with self.subTest():
             self.assertTrue(exists(self.TEST_DB))
 
@@ -167,7 +167,7 @@ class TestPersistentTable(unittest.TestCase):
         expected = [("Joe", 30)]
         actual = table2.query("select * from foo")
 
-        self.assertEqual(actual, expected)
+        self.assertEqual(actual.rows, expected)
 
     def test_db_exists_given_wrong_schema(self):
         @dataclass

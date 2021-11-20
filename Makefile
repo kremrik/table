@@ -48,7 +48,7 @@ flake8-lint :
 	@echo -e 		'-----------$(NO_COLOR)'
 	@flake8 $(MODULE) \
 		--max-line-length $(LINE_LENGTH) \
-		--ignore=E501,E731,F401 \
+		--ignore=E501,E731,F401,W503 \
 		--count \
 		|| exit 1
 
