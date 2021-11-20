@@ -7,14 +7,12 @@ from table.errors import TableError
 from table.tables.base import Table
 
 import logging
-from typing import TypeVar
 
 
 __all__ = ["InMemoryTable"]
 
 
 LOGGER = logging.getLogger(__name__)
-Dataclass = TypeVar("Dataclass")
 
 
 class InMemoryTable(Table):
@@ -32,16 +30,3 @@ class InMemoryTable(Table):
             print(e)
         except DatabaseError as e:
             raise TableError from e
-
-
-# ---------------------------------------------------------
-def format_insert(
-    model: type,
-    record: Dataclass,
-) -> tuple:
-    if not isinstance(record, model):
-        msg = f"Data must be of type '{model}'"
-        raise TypeError(msg)
-
-    r = tuple(record.__dict__.values())
-    return r
