@@ -7,3 +7,4 @@ htmlcov
 .coverage
 sphinx/build
 *.db
+tmp
