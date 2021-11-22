@@ -39,7 +39,7 @@ class Table(ABC):
             ].items()
         }
 
-        self._db = self._connect(
+        self._db: Database = self._connect(
             self.location, self._name, self._schema
         )
 

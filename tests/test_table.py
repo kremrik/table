@@ -185,3 +185,25 @@ class TestPersistentTable(unittest.TestCase):
 
         with self.assertRaises(TableError):
             table_(Bar, self.TEST_DB)
+
+    def test_save_in_mem_to_persistent(self):
+        @dataclass
+        class Foo:
+            name: str
+            age: int
+
+        table = table_(Foo)
+
+        record = Foo("Joe", 30)
+        table.insert(record)
+        table.save(self.TEST_DB)
+        del table
+
+        table = table_(Foo, self.TEST_DB)
+        expected = [("Joe", 30)]
+        actual = table.query("select * from foo")
+
+        with self.subTest():
+            self.assertEqual(actual.rows, expected)
+        with self.subTest():
+            self.assertTrue(exists(self.TEST_DB))

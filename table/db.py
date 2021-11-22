@@ -123,6 +123,10 @@ class Database:
     def schema(self, tablename: str) -> List[dict]:
         return get_schema(self._con, tablename)
 
+    def backup(self, location: str) -> bool:
+        backup(self._con, location)
+        return True
+
     def _connect(self):
         self._pre_config()
         self._con = create_db(self.db)
@@ -276,6 +280,14 @@ def config_mmap(con: Connection, page_size: int) -> None:
     stmt = f"PRAGMA mmap_size={page_size}"
     con.execute(stmt)
     LOGGER.debug(stmt)
+
+
+@fwdexception
+def backup(con: Connection, location: str) -> None:
+    bak_con = sqlite3.connect(location)
+    with bak_con:
+        con.backup(bak_con)
+    LOGGER.debug(f"Database dumpted [{location}]")
 
 
 # ---------------------------------------------------------
