@@ -41,7 +41,9 @@ class Table(ABC):
             ].items()
         }
 
-        self._start()
+        self._db = self._connect(
+            self.location, self._name, self._schema
+        )
 
     @property
     def schema(self) -> dict:
