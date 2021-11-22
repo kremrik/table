@@ -77,6 +77,8 @@ results.rows
  Row(name='Yackley Yoot', age=25, address='Bumblefartville', email=None, timestamp=datetime.datetime(2021, 11, 19, 21, 52, 28, 995979))]
 ```
 
+For more examples, check out the [examples](./examples) directory.
+
 
 ### Installation (development)
 ```
@@ -101,7 +103,7 @@ pip install . --upgrade
 - [x] pretty print query results
 - [x] create db method to dump in-mem table to disk
 - [x] docstrings for API methods
-- [ ] examples directory
+- [x] examples directory
 
 ##### VERSION 2
 - [x] create profiler base
