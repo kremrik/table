@@ -131,7 +131,7 @@ class TestPersistentTable(unittest.TestCase):
             pass
 
     def tearDown(self) -> None:
-        self.setUpClass()
+        self.setUp()
 
     def test_db_does_not_exist(self):
         @dataclass
