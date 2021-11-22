@@ -19,6 +19,13 @@ def table(
     dclass: Dataclass,
     location: Optional[str] = None,
 ) -> Table:
+    """
+    Create a table!
+
+    If `location` is specified, the table will be created
+    locally on disk (or loaded from disk, if it already
+    exists). Otherwise, an in-memory table will be created.
+    """
     if not location:
         location = ":memory:"
         return InMemoryTable(
