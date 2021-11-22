@@ -82,6 +82,10 @@ class Table(ABC):
         results = Results(output)
         return results
 
+    def index_column(self, column: str) -> bool:
+        self._db.create_index(self._name, column)
+        return True
+
     @abstractstaticmethod
     def _connect(
         dbname: str,

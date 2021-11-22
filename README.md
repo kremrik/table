@@ -100,6 +100,7 @@ pip install . --upgrade
 - [x] if db already exists, check that `dclass` matches `schema`
 - [x] pretty print query results
 - [ ] create db method to dump in-mem table to disk
+- [ ] docstrings for API methods
 - [ ] examples directory
 
 ##### VERSION 2

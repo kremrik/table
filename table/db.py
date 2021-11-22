@@ -99,9 +99,9 @@ class Database:
         return drop_table(self._con, name)
 
     def create_index(
-        self, table: str, columns: Union[str, List[str]]
+        self, table: str, column: str
     ) -> bool:
-        create_index(self._con, table, columns)
+        create_index(self._con, table, column)
         return True
 
     def insert(
@@ -226,19 +226,16 @@ def drop_table(con: Connection, name: str) -> None:
 def create_index(
     con: Connection,
     table: str,
-    columns: Union[str, List[str]],
+    column: str,
 ) -> None:
-    stmt = "CREATE INDEX {idx_nm} ON {tbl_nm} ({cols})"
+    stmt = "CREATE INDEX {idx_nm} ON {tbl_nm} ({col})"
 
-    idx_nm = index_name(table)
-    if not isinstance(columns, list):
-        columns = [columns]
-    cols = ", ".join(columns)
+    idx_nm = f"idx_{table}_{column}"
 
     stmt = stmt.format(
         idx_nm=idx_nm,
         tbl_nm=table,
-        cols=cols,
+        col=column,
     )
     con.execute(stmt)
     LOGGER.debug(stmt)
