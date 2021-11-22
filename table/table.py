@@ -9,7 +9,7 @@ from table.tables.base import Table
 from table.tables.in_memory import InMemoryTable
 from table.tables.persistent import PersistentTable
 
-from typing import List, Optional, TypeVar
+from typing import Optional, TypeVar
 
 
 Dataclass = TypeVar("Dataclass")
@@ -18,18 +18,15 @@ Dataclass = TypeVar("Dataclass")
 def table(
     dclass: Dataclass,
     location: Optional[str] = None,
-    index_columns: Optional[List[str]] = None,
 ) -> Table:
     if not location:
         location = ":memory:"
         return InMemoryTable(
             dclass=dclass,
             location=location,
-            index_columns=index_columns,
         )
     else:
         return PersistentTable(
             dclass=dclass,
             location=location,
-            index_columns=index_columns,
         )

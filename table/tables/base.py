@@ -27,11 +27,9 @@ class Table(ABC):
         self,
         dclass: Dataclass,
         location: str,
-        index_columns: bool = False,
     ) -> None:
         self.dclass = dclass
         self.location = location
-        self.index_columns = index_columns
 
         self._name = dclass.__name__.lower()
         self._schema = {
@@ -83,13 +81,6 @@ class Table(ABC):
         output = self._db.execute(querystring, variables)
         results = Results(output)
         return results
-
-    def _start(self):
-        self._db = self._connect(
-            self.location, self._name, self._schema
-        )
-        if self.index_columns:
-            self._create_index(self.index_columns)
 
     @abstractstaticmethod
     def _connect(
