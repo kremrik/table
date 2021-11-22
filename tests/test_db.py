@@ -119,3 +119,17 @@ class TestDatabase(unittest.TestCase):
 
         db.create_table(tablename, schema)
         self.assertTrue(db.table_exists(tablename))
+
+    def test_index_column(self):
+        db = Database()
+
+        tablename = "test"
+        schema = {"foo": str, "bar": int}
+        db.create_table(tablename, schema)
+        db.create_index("test", "foo")
+
+        expected = "idx_test_foo"
+        actual = db.execute(
+            "select name from sqlite_master where type = 'index'"
+        )
+        self.assertEqual(expected, actual[0].name)
