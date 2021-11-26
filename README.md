@@ -8,15 +8,9 @@ It's entirely driven by a single Python standard library `dataclasses.dataclass`
 
 
 ### Motivation
-When I was working accounting and finance jobs at the beginning of my career, MS Excel was the GOAT.
-It gave me (and everyone around me) the power to persist and clean data, extract insights through visualizations, engage in "feature engineering", and so much more.
-Excel also possessed some weaknesses as a result of the (intentional) tradeoffs required to make these strengths a reality;
-most notably performance (which can suffer even with a few dozen MiB of data) and the "wild west" feel that comes with the freedom to mix arbitrary data types/structures, formulas, and formats (among other weirdness).
-
-`table` was designed not to mimic Excel, but to take inspiration from some of its most user-friendly features.
-At the same time, it incorporates some of the best advantages that a true programming language and genuine database have to offer.
-The end result is something that attempts to capture the "niceness" of Excel and the performance of a database, while mitigating some of the most unpleasant characteristics of either one.
-Think of it almost as the anti-`pandas` - a simple, easy to understand tool just for you and your data.
+I just wanted the simplest way to work with row-oriented data that didn't force me to learn bespoke APIs like `pandas`.
+SQL is, for better or worse, the language of tabular data, and whenever I had to use the aforementioned package I found myself having to search things like "where clause in pandas" far too often.
+`table` makes it easy to use vanilla SQL (well, sqlite3 SQL) on data scaffolded by simple `dataclass`es.
 
 
 ### What is it _not_?
@@ -28,6 +22,8 @@ Additionally, be aware that I've done little to stop you from shooting yourself 
 
 
 ### Example
+
+##### Creating a table
 ```python
 from table import table
 from datetime import datetime
@@ -51,7 +47,11 @@ p3 = Person("Yackley Yoot", 25, "Bumblefartville")
 records = [p1, p2, p3]
 
 person.insert(records)
+# True
+```
 
+##### Using your table
+```python
 person.query("select * from person")
 +--------------+-----+-----------------+---------------+----------------------------+
 |     name     | age |     address     |     email     |         timestamp          |
@@ -67,10 +67,17 @@ person.query("select avg(age) as avg_age from person")
 +--------------------+
 | 41.666666666666664 |
 +--------------------+
+```
 
+##### More detail
+```python
 # the output from the `query` method is an instance of `table.results.Results`.
 # if you want the data underlying the tables above, you can access it via the `rows` attribute:
+
 results = person.query("select * from person")
+type(results)
+# table.results.Results
+
 results.rows
 [Row(name='Joe Schmo', age=40, address='100 Place Ln', email='joe@schmo.com', timestamp=datetime.datetime(2021, 11, 19, 21, 52, 28, 995979)),
  Row(name='Bill Bob', age=60, address='111 Cool Town', email='bill@bob.com', timestamp=datetime.datetime(2021, 11, 19, 21, 52, 28, 995979)),
