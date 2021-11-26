@@ -104,6 +104,7 @@ pip install . --upgrade
 - [x] create db method to dump in-mem table to disk
 - [x] docstrings for API methods
 - [x] examples directory
+- [ ] ensure commits function properly
 
 ##### VERSION 2
 - [x] create profiler base

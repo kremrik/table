@@ -2,10 +2,12 @@ from table.db import (
     Database,
     DatabaseError,
 )
+from table.errors import TableError
 from table.results import Results
 
 import logging
 from abc import ABC, abstractstaticmethod
+from dataclasses import is_dataclass
 from functools import partial
 from typing import (
     List,
@@ -28,6 +30,11 @@ class Table(ABC):
         dclass: Dataclass,
         location: str,
     ) -> None:
+        if not is_dataclass(dclass):
+            typ = type(dclass)
+            msg = f"`dclass` must be type dataclass, received {typ}"
+            raise TableError(msg)
+
         self.dclass = dclass
         self.location = location
 

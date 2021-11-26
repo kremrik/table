@@ -8,6 +8,13 @@ from os import remove
 from os.path import exists
 
 
+class TestTable(unittest.TestCase):
+    def test_dclass_not_dataclass(self):
+        dclass = "WRONG"
+        with self.assertRaises(TableError):
+            table_(dclass, ":memory:")
+
+
 class TestInMemoryTable(unittest.TestCase):
     def test_simple(self):
         @dataclass
